@@ -1,3 +1,7 @@
 <Solution>
-  <Project Path="MiniWebApp/MiniWebApp.csproj" />
+  <Project Path="MiniWebApp/MiniWebApp.ApiService/MiniWebApp.ApiService.csproj" />
+  <Project Path="MiniWebApp/MiniWebApp.AppHost/MiniWebApp.AppHost.csproj" Id="aed398a6-ceb4-43f1-bb13-f4f9fcffb222" />
+  <Project Path="MiniWebApp/MiniWebApp.ServiceDefaults/MiniWebApp.ServiceDefaults.csproj" />
+  <Project Path="MiniWebApp/MiniWebApp.Tests/MiniWebApp.Tests.csproj" />
+  <Project Path="MiniWebApp/MiniWebApp.Web/MiniWebApp.Web.csproj" />
 </Solution>
