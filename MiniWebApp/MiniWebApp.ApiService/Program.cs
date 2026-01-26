@@ -1,3 +1,5 @@
+using MiniWebApp.ApiService.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire client integrations.
@@ -9,7 +11,11 @@ builder.Services.AddProblemDetails();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.AddAwsS3Service(builder.Configuration);
+
 var app = builder.Build();
+var config = app.Configuration;
+
 
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler();
@@ -19,29 +25,15 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-string[] summaries = ["Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"];
 
-app.MapGet("/", () => "API service is running. Navigate to /weatherforecast to see sample data.");
+app.MapGet("/", () => "API service is running.");
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+
 
 app.MapDefaultEndpoints();
 
-app.Run();
+await app.RunAsync();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+
+
+
