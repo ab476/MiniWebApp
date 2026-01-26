@@ -1,10 +1,11 @@
 import { createTheme } from "@mui/material/styles";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import App from "./App";
+import { usePersistedTheme } from "./hooks/usePersistedTheme";
 
 export default function Root() {
-  const [isDark, setIsDark] = useState(false);
+  const { isDark, toggle } = usePersistedTheme();
 
   const theme = useMemo(
     () =>
@@ -19,7 +20,7 @@ export default function Root() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <App isDark={isDark} onToggleTheme={() => setIsDark(p => !p)} />
+      <App isDark={isDark} onToggleTheme={toggle} />
     </ThemeProvider>
   );
 }

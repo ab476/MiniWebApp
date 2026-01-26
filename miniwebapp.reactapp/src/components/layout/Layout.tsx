@@ -26,8 +26,6 @@ export default function Layout({ children, isDark, onToggleTheme }: LayoutProps)
     setMobileOpen((prev) => !prev);
   };
 
-  
-
   const drawer = (
     <Box>
       <Toolbar>

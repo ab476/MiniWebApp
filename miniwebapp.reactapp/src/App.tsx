@@ -1,12 +1,12 @@
-import './App.css'
-import Layout from './components/Layout'
+import './App.css';
+import Layout from './components/layout/Layout';
 
 type AppProps = {
   isDark: boolean;
   onToggleTheme: () => void;
 };
 
-function App({ isDark, onToggleTheme }: AppProps) {
+export default function App({ isDark, onToggleTheme }: AppProps) {
   return (
     <Layout isDark={isDark} onToggleTheme={onToggleTheme}>
       <h2>Dashboard</h2>
@@ -14,5 +14,3 @@ function App({ isDark, onToggleTheme }: AppProps) {
     </Layout>
   );
 }
-
-export default App
