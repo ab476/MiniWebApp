@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.MySqlConnector" Version="13.1.0" />
+    <PackageReference Include="Aspire.Pomelo.EntityFrameworkCore.MySql" Version="13.1.0" />
+    <PackageReference Include="Riok.Mapperly" Version="4.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MiniWebApp\MiniWebApp.ServiceDefaults\MiniWebApp.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,6 +1,4 @@
 ﻿using Amazon.S3;
-using Amazon.S3.Model;
-using Amazon.S3.Util;
 using Microsoft.Extensions.Options;
 using MiniWebApp.ApiService.Options;
 

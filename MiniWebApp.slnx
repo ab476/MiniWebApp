@@ -1,8 +1,13 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="MiniWebApp/dummy-api-ideas.md" />
+  </Folder>
   <Project Path="MiniWebApp.ReactApp/miniwebapp.reactapp.esproj">
     <Build />
     <Deploy />
   </Project>
+  <Project Path="MiniWebApp.TaskAPI/MiniWebApp.TaskAPI.csproj" />
   <Project Path="MiniWebApp/MiniWebApp.ApiService/MiniWebApp.ApiService.csproj" />
   <Project Path="MiniWebApp/MiniWebApp.AppHost/MiniWebApp.AppHost.csproj" Id="aed398a6-ceb4-43f1-bb13-f4f9fcffb222" />
   <Project Path="MiniWebApp/MiniWebApp.ServiceDefaults/MiniWebApp.ServiceDefaults.csproj" />

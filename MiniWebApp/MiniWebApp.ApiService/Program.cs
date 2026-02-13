@@ -10,6 +10,7 @@ builder.Services.AddProblemDetails();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.AddRedisClient(connectionName: "cache");
 
 builder.Services.AddAwsS3Service(builder.Configuration);
 

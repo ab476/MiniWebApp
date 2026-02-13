@@ -1,47 +1,22 @@
-import * as React from 'react';
-import {
-  Box,
-  Drawer,
-  Toolbar,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Typography,
-} from '@mui/material';
+import { Box, Drawer, Toolbar } from '@mui/material';
 import AppHeader from './AppHeader';
+import { DrawerContent } from './DrawerContent';
+import { useCallback, useState, type PropsWithChildren } from 'react';
 
 const drawerWidth = 240;
-
-type LayoutProps = {
-  children: React.ReactNode;
+type LayoutProps = PropsWithChildren<{
   isDark: boolean;
   onToggleTheme: () => void;
-};
+}>;
 
 export default function Layout({ children, isDark, onToggleTheme }: LayoutProps) {
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleDrawerToggle = () => {
+  const handleDrawerToggle = useCallback(() => {
     setMobileOpen((prev) => !prev);
-  };
+  }, []);
 
-  const drawer = (
-    <Box>
-      <Toolbar>
-        <Typography variant="h6">My App</Typography>
-      </Toolbar>
-      <List>
-        {['Dashboard', 'Reports', 'Settings'].map((text) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    </Box>
-  );
+  const drawer = <DrawerContent title="App Name" />;
 
   return (
     <Box sx={{ display: 'flex' }}>

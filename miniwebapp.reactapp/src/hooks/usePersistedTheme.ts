@@ -1,4 +1,5 @@
 // hooks/usePersistedTheme.ts
+import type { PaletteMode } from "@mui/material/styles";
 import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "app-theme-mode";
@@ -10,7 +11,8 @@ export function usePersistedTheme(defaultValue = false) {
   });
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, isDark ? "dark" : "light");
+    const value: PaletteMode = isDark ? "dark" : "light";
+    localStorage.setItem(STORAGE_KEY, value);
   }, [isDark]);
 
   return {

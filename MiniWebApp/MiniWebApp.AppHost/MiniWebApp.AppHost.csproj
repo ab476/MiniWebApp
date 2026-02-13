@@ -9,12 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\MiniWebApp.TaskAPI\MiniWebApp.TaskAPI.csproj" />
     <ProjectReference Include="..\MiniWebApp.ApiService\MiniWebApp.ApiService.csproj" />
     <ProjectReference Include="..\MiniWebApp.Web\MiniWebApp.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.JavaScript" Version="13.1.0" />
+    <PackageReference Include="Aspire.Hosting.MySql" Version="13.1.0" />
     <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.5.2" />
     <PackageReference Include="Aspire.Hosting.Redis" Version="13.1.0" />
   </ItemGroup>
