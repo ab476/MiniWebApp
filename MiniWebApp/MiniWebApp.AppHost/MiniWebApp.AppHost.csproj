@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.0.1">
+﻿<Project Sdk="Aspire.AppHost.Sdk/13.0.1">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\MiniWebApp.TaskAPI\MiniWebApp.TaskAPI.csproj" />
+    <ProjectReference Include="..\..\MiniWebApp.UserApi\MiniWebApp.UserApi.csproj" />
     <ProjectReference Include="..\MiniWebApp.ApiService\MiniWebApp.ApiService.csproj" />
     <ProjectReference Include="..\MiniWebApp.Web\MiniWebApp.Web.csproj" />
   </ItemGroup>

@@ -39,4 +39,7 @@ builder.AddProject<Projects.MiniWebApp_TaskAPI>("miniwebapp-taskapi")
     .WaitFor(mysqldb);
 
 
+builder.AddProject<Projects.MiniWebApp_UserApi>("miniwebapp-userapi");
+
+
 builder.Build().Run();
