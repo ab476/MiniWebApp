@@ -2,22 +2,22 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using FluentValidationException = FluentValidation.ValidationException;
+using MiniWebApp.Core.Exceptions;
 namespace MiniWebApp.Core.Controllers;
 
 [ApiController]
-[Produces("application/json")]
 public abstract class ApiControllerBase : ControllerBase
 {
-    protected async Task ValidateAsync<TRequest>(TRequest request)
+    protected async Task ValidateAsync<TRequest>(TRequest request, CancellationToken ct)
     {
         var validator = HttpContext.RequestServices.GetRequiredService<IValidator<TRequest>>();
 
-        var validationResult = await validator.ValidateAsync(request);
+        var validationResult = await validator.ValidateAsync(request, ct);
 
         if (!validationResult.IsValid)
         {
-            throw new FluentValidationException(validationResult.Errors);
+            var message = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
+            throw new ValidationFailedException(message);
         }
     }
 }

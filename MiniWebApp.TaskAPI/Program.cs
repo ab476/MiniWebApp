@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using MiniWebApp.TaskAPI.Domain;
 
 var builder = WebApplication.CreateBuilder(args);

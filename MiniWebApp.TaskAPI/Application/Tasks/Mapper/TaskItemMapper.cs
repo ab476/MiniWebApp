@@ -1,5 +1,4 @@
 ﻿using Riok.Mapperly.Abstractions;
-using System.Runtime.ConstrainedExecution;
 
 namespace MiniWebApp.TaskAPI.Application.Tasks.Dtos;
 

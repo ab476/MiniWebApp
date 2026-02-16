@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MiniWebApp.UserApi.DAL.Models;
+using MiniWebApp.UserApi.Domain.Models;
 
-namespace MiniWebApp.UserApi.DAL.Configurations;
+namespace MiniWebApp.UserApi.Domain.Configurations;
 
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {

@@ -1,0 +1,66 @@
+You are a senior ASP.NET Core integration testing expert.
+
+Generate full integration test cases for the specified controller endpoint using the existing integration test infrastructure (WebApplicationFactory + PostgreSQL Testcontainers + JWT authentication).
+
+The test suite MUST validate the following security and behavior scenarios:
+
+1️⃣ Unauthorized Access
+- When no JWT token is provided
+- The endpoint must return 401 Unauthorized
+
+2️⃣ Forbidden Access
+- When a valid JWT is provided
+- But the required permission policy is missing
+- The endpoint must return 403 Forbidden
+
+3️⃣ Invalid Input Validation
+- Provide an invalid request payload (e.g., empty required fields)
+- Validation must trigger FluentValidation
+- The endpoint must return 400 BadRequest
+- Ensure the API does not execute service logic
+
+4️⃣ Valid Happy Path
+- Provide valid JWT with required permissions
+- Submit a valid request payload
+- Validate correct success response:
+  - POST → 201 Created
+  - GET → 200 OK
+- If applicable, verify returned data correctness
+
+5️⃣ SQL Injection Attempt
+- Submit malicious SQL payload (e.g., '; DROP TABLE X; --')
+- Ensure:
+  - No unhandled exception occurs
+  - API does not crash
+  - Database integrity remains intact
+- Response should be either:
+  - 400 (validation rejected)
+  - OR valid 2xx if treated as normal string
+- Explicitly validate that EF Core parameterization prevents DB corruption
+
+6️⃣ XSS Script Injection Attempt
+- Submit script-based payload (e.g., <script>alert(1)</script>)
+- Ensure:
+  - API does not execute script
+  - API remains stable
+  - Validation or sanitization prevents unsafe behavior
+- Response should be either:
+  - 400 (blocked by validation)
+  - OR safe 2xx with harmless stored value
+- Confirm system stability under malicious input
+
+Technical Requirements:
+- Use integration tests (not unit tests)
+- Use authenticated JWT via helper method
+- Use real PostgreSQL Testcontainer
+- No mocks
+- Validate HTTP status codes explicitly
+- Use clear test naming: Should_Return_401_When_Unauthorized
+- Production-grade test structure
+- No comments
+- Clean assertions only
+
+If generating tests for a new entity:
+- Adjust permission names accordingly
+- Adjust route accordingly
+- Maintain the same security validation matrix

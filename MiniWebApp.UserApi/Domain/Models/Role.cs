@@ -1,4 +1,4 @@
-﻿namespace MiniWebApp.UserApi.DAL.Models;
+﻿namespace MiniWebApp.UserApi.Domain.Models;
 
 public class Role
 {

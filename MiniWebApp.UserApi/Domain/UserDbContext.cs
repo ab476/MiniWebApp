@@ -1,10 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MiniWebApp.UserApi.DAL.Models;
-using System.Data;
-using System.Reflection.Emit;
-using System.Security;
+using MiniWebApp.UserApi.Domain.Models;
 
-namespace MiniWebApp.UserApi.DAL;
+namespace MiniWebApp.UserApi.Domain;
 
 public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(options)
 {

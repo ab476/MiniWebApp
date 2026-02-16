@@ -3,11 +3,15 @@
     <Project Path="MiniWebApp/MiniWebApp.AppHost/MiniWebApp.AppHost.csproj" Id="aed398a6-ceb4-43f1-bb13-f4f9fcffb222" />
     <Project Path="MiniWebApp/MiniWebApp.ServiceDefaults/MiniWebApp.ServiceDefaults.csproj" />
   </Folder>
+  <Folder Name="/Common/">
+    <Project Path="MiniWebApp.Core/MiniWebApp.Core.csproj" Id="ba3816f1-2ccd-49d5-b639-15f8fc724b61" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="MiniWebApp/dummy-api-ideas.md" />
   </Folder>
   <Folder Name="/UserApi/">
+    <Project Path="MiniWebApp.UserApi.Test/MiniWebApp.UserApi.Test.csproj" Id="0c208ad6-5185-49f8-bed3-3c657722700d" />
     <Project Path="MiniWebApp.UserApi/MiniWebApp.UserApi.csproj" />
   </Folder>
   <Project Path="MiniWebApp.ReactApp/miniwebapp.reactapp.esproj">
