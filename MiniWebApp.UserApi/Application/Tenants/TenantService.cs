@@ -6,7 +6,7 @@ using MiniWebApp.UserApi.Domain.Models;
 
 namespace MiniWebApp.UserApi.Application.Tenants;
 
-public class TenantService(UserDbContext _db)
+public class TenantService(UserDbContext _db) : ITenantService
 {
     public async Task<Outcome<TenantResponse>> GetByIdAsync(Guid id, CancellationToken ct = default)
     {

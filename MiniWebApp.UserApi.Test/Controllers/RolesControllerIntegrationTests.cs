@@ -17,7 +17,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
     [Fact]
     public async Task GetById_Should_Return_401_When_Unauthorized()
     {
-        var client = CreateAnonymousClient();
+        var client = GetAnonymousClient();
 
         var response = await client.GetAsync($"{BaseUrl}/{Guid.NewGuid()}");
 
@@ -27,7 +27,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
     [Fact]
     public async Task GetById_Should_Return_403_When_Missing_Permission()
     {
-        var client = CreateAuthenticatedClient().Build();
+        var client = AuthClientBuilder().Build();
 
         var response = await client.GetAsync($"{BaseUrl}/{Guid.NewGuid()}");
 
@@ -35,9 +35,50 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
     }
 
     [Fact]
+    public async Task GetById_Should_Return_200_When_Valid_And_Authorized()
+    {
+        var roleId = await CreateRoleAsync();
+
+        var client = AuthClientBuilder()
+            .WithPermissions(AppPermissions.Roles.Read)
+            .Build();
+
+        var response = await client.GetAsync($"{BaseUrl}/{roleId}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<RoleResponse>();
+
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(roleId);
+    }
+    [Fact]
+    public async Task GetById_Should_Return_404_When_Not_Found()
+    {
+        var client = AuthClientBuilder()
+            .WithPermissions(AppPermissions.Roles.Read)
+            .Build();
+
+        var response = await client.GetAsync($"{BaseUrl}/{Guid.NewGuid()}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+    [Fact]
+    public async Task GetById_Should_Return_400_When_Invalid_Guid()
+    {
+        var client = AuthClientBuilder()
+            .WithPermissions(AppPermissions.Roles.Read)
+            .Build();
+
+        HttpResponseMessage response = await client.GetAsync($"{BaseUrl}/invalid-guid");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
     public async Task Create_Should_Return_401_When_Unauthorized()
     {
-        var client = CreateAnonymousClient();
+        var client = GetAnonymousClient();
 
         var response = await client.PostAsJsonAsync(BaseUrl, new { });
 
@@ -47,7 +88,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
     [Fact]
     public async Task Create_Should_Return_403_When_Missing_Write_Permission()
     {
-        var client = CreateAuthenticatedClient()
+        var client = AuthClientBuilder()
             .WithPermissions(AppPermissions.Roles.Read)
             .Build();
 
@@ -63,7 +104,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
     [Fact]
     public async Task Create_Should_Return_400_When_Invalid_Input()
     {
-        var client = CreateAuthenticatedClient()
+        var client = AuthClientBuilder()
             .WithPermissions(AppPermissions.Roles.Write)
             .Build();
 
@@ -81,7 +122,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
     {
         var tenantId = await CreateTenantAsync();
 
-        var client = CreateAuthenticatedClient()
+        var client = AuthClientBuilder()
             .WithTenant(tenantId)
             .WithPermissions(
                 AppPermissions.Roles.Write,
@@ -107,7 +148,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
     {
         var tenantId = await CreateTenantAsync();
 
-        var client = CreateAuthenticatedClient()
+        var client = AuthClientBuilder()
             .WithTenant(tenantId)
             .WithPermissions(AppPermissions.Roles.Write)
             .Build();
@@ -134,7 +175,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
     {
         var tenantId = await CreateTenantAsync();
 
-        var client = CreateAuthenticatedClient()
+        var client = AuthClientBuilder()
             .WithTenant(tenantId)
             .WithPermissions(AppPermissions.Roles.Write)
             .Build();
@@ -154,7 +195,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
     {
         var tenantId = await CreateTenantWithRolesAsync();
 
-        var client = CreateAuthenticatedClient()
+        var client = AuthClientBuilder()
             .WithTenant(tenantId)
             .WithPermissions(AppPermissions.Roles.Read)
             .Build();
@@ -175,7 +216,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
     {
         var roleId = await CreateRoleAsync();
 
-        var client = CreateAuthenticatedClient()
+        var client = AuthClientBuilder()
             .WithPermissions(AppPermissions.Roles.Read)
             .Build();
 
@@ -191,7 +232,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
     {
         var roleId = await CreateRoleAsync();
 
-        var client = CreateAuthenticatedClient()
+        var client = AuthClientBuilder()
             .WithPermissions(AppPermissions.Roles.Write)
             .Build();
 
@@ -207,7 +248,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
     {
         var roleId = await CreateRoleAsync();
 
-        var client = CreateAuthenticatedClient()
+        var client = AuthClientBuilder()
             .WithPermissions(AppPermissions.Roles.Write)
             .Build();
 
@@ -221,7 +262,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
     {
         var roleId = await CreateRoleAsync();
 
-        var client = CreateAuthenticatedClient()
+        var client = AuthClientBuilder()
             .WithPermissions(AppPermissions.Roles.Manage)
             .Build();
 

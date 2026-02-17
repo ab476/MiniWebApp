@@ -6,8 +6,9 @@ using MiniWebApp.UserApi.Domain.Models;
 
 namespace MiniWebApp.UserApi.Application;
 
-public class RoleService(UserDbContext _db)
+public class RoleService(UserDbContext _db) : IRoleService
 {
+
     public async Task<Outcome<RoleResponse>> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         var role = await _db.Roles

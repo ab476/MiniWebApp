@@ -23,12 +23,12 @@ public abstract class IntegrationTestBase
     // Client Creation (Centralized)
     // ----------------------------
 
-    protected HttpClient CreateAnonymousClient()
+    protected HttpClient GetAnonymousClient()
     {
         return Factory.CreateClient();
     }
 
-    protected AuthenticatedClientBuilder CreateAuthenticatedClient()
+    protected AuthenticatedClientBuilder AuthClientBuilder()
     {
         return new AuthenticatedClientBuilder(
             Factory,
