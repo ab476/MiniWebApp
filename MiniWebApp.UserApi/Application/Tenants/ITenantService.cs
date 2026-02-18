@@ -1,5 +1,5 @@
 ﻿using MiniWebApp.Core.Common;
-using MiniWebApp.UserApi.Contracts.Tenants;
+using MiniWebApp.UserApi.Models.Tenants;
 
 namespace MiniWebApp.UserApi.Application.Tenants;
 

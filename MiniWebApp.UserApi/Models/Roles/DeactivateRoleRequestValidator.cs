@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace MiniWebApp.UserApi.Contracts.Roles;
+namespace MiniWebApp.UserApi.Models.Roles;
 
 public sealed class DeactivateRoleRequestValidator : AbstractValidator<DeactivateRoleRequest>
 {

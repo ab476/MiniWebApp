@@ -1,5 +1,5 @@
 ﻿using BuilderGenerator;
-using MiniWebApp.UserApi.Contracts.Roles;
+using MiniWebApp.UserApi.Models.Roles;
 using System;
 using System.Collections.Generic;
 using System.Text;

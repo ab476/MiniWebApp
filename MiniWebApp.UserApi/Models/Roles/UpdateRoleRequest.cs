@@ -1,4 +1,4 @@
-﻿namespace MiniWebApp.UserApi.Contracts.Roles;
+﻿namespace MiniWebApp.UserApi.Models.Roles;
 
 public record UpdateRoleRequest
 {

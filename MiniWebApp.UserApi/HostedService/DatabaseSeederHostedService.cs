@@ -7,6 +7,7 @@ using MiniWebApp.UserApi.Contracts.Roles;
 using MiniWebApp.UserApi.Contracts.Tenants;
 using MiniWebApp.UserApi.Domain;
 using MiniWebApp.UserApi.Domain.Models;
+using MiniWebApp.UserApi.Models.Tenants;
 using MiniWebApp.UserApi.Options;
 
 namespace MiniWebApp.UserApi.HostedService;

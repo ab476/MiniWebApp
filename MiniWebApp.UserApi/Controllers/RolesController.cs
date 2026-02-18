@@ -4,7 +4,7 @@ using MiniWebApp.Core.Auth;
 using MiniWebApp.Core.Common;
 using MiniWebApp.Core.Controllers;
 using MiniWebApp.UserApi.Application;
-using MiniWebApp.UserApi.Contracts.Roles;
+using MiniWebApp.UserApi.Models.Roles;
 
 namespace MiniWebApp.UserApi.Controllers;
 

@@ -1,5 +1,5 @@
 ﻿using MiniWebApp.Core.Common;
-using MiniWebApp.UserApi.Contracts.Roles;
+using MiniWebApp.UserApi.Models.Roles;
 
 namespace MiniWebApp.UserApi.Application;
 

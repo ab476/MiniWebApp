@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using MiniWebApp.Core.Validator;
 
-namespace MiniWebApp.UserApi.Contracts.Roles;
+namespace MiniWebApp.UserApi.Models.Roles;
 
 internal static class RoleValidationExtensions
 {

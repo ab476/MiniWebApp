@@ -2,8 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MiniWebApp.Core.Auth;
-using MiniWebApp.UserApi.Contracts.Roles;
 using MiniWebApp.UserApi.Domain;
+using MiniWebApp.UserApi.Models.Roles;
 using System.Net;
 using System.Net.Http.Json;
 

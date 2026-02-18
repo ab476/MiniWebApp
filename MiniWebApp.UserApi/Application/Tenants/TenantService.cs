@@ -3,6 +3,7 @@ using MiniWebApp.Core.Common;
 using MiniWebApp.UserApi.Contracts.Tenants;
 using MiniWebApp.UserApi.Domain;
 using MiniWebApp.UserApi.Domain.Models;
+using MiniWebApp.UserApi.Models.Tenants;
 
 namespace MiniWebApp.UserApi.Application.Tenants;
 

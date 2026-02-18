@@ -3,6 +3,7 @@ using MiniWebApp.Core.Common;
 using MiniWebApp.UserApi.Contracts.Roles;
 using MiniWebApp.UserApi.Domain;
 using MiniWebApp.UserApi.Domain.Models;
+using MiniWebApp.UserApi.Models.Roles;
 
 namespace MiniWebApp.UserApi.Application;
 

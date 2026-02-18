@@ -1,4 +1,5 @@
 ﻿using MiniWebApp.UserApi.Domain.Models;
+using MiniWebApp.UserApi.Models.Roles;
 using Riok.Mapperly.Abstractions;
 
 namespace MiniWebApp.UserApi.Contracts.Roles;

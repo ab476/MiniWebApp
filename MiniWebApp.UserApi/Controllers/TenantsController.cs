@@ -2,14 +2,15 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MiniWebApp.Core.Auth;
 using MiniWebApp.Core.Common;
+using MiniWebApp.Core.Controllers;
 using MiniWebApp.UserApi.Application.Tenants;
-using MiniWebApp.UserApi.Contracts.Tenants;
+using MiniWebApp.UserApi.Models.Tenants;
 
 namespace MiniWebApp.UserApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class TenantsController(TenantService tenantService) : ControllerBase
+public class TenantsController(TenantService tenantService) : ApiControllerBase
 {
     [HttpGet("{id:guid}")]
     [Authorize(Policy = AppPermissions.Tenants.Read)]
@@ -35,20 +36,26 @@ public class TenantsController(TenantService tenantService) : ControllerBase
     [Authorize(Policy = AppPermissions.Tenants.Write)]
     [ProducesResponseType(typeof(TenantResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateAsync(
+    public async Task<Outcome<TenantResponse>> CreateAsync(
         [FromBody] CreateTenantRequest request,
         CancellationToken ct = default)
     {
+        await ValidateAsync(request, ct);
         var outcome = await tenantService.CreateAsync(request, ct);
-        if (!outcome.IsSuccess)
+        if (outcome.IsSuccess)
         {
-            return outcome.Convert();
+            var tenant = outcome.Value!;
+
+            var location = Url.Action(
+                nameof(GetByIdAsync),
+                values: new { id = tenant.Id }
+            );
+
+            Response.Headers.Location = location!;
         }
 
-        return CreatedAtAction(
-            nameof(GetByIdAsync),
-            new { id = outcome.Value!.Id },
-            outcome.Value);
+
+        return outcome;
     }
 
     [HttpPut("{tenantId:guid}")]
@@ -60,28 +67,28 @@ public class TenantsController(TenantService tenantService) : ControllerBase
         [FromBody] UpdateTenantRequest request,
         CancellationToken ct = default)
     {
-        var outcome = await tenantService.UpdateAsync(tenantId, request, ct);
-        return outcome;
+        await ValidateAsync(request, ct);
+        return await tenantService.UpdateAsync(tenantId, request, ct);
     }
 
     [HttpPost("{tenantId:guid}/activate")]
     [Authorize(Policy = AppPermissions.Tenants.Manage)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<Outcome> ActivateAsync(Guid tenantId, CancellationToken ct = default)
+    public async Task<Outcome> ActivateAsync([FromBody] ActivateTenantRequest request, CancellationToken ct = default)
     {
-        var outcome = await tenantService.ActivateAsync(new ActivateTenantRequest { TenantId = tenantId }, ct);
-        return outcome;
+        await ValidateAsync(request, ct);
+        return await tenantService.ActivateAsync(request, ct);
     }
 
     [HttpPost("{tenantId:guid}/deactivate")]
     [Authorize(Policy = AppPermissions.Tenants.Manage)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<Outcome> DeactivateAsync(Guid tenantId, CancellationToken ct = default)
+    public async Task<Outcome> DeactivateAsync([FromBody] DeactivateTenantRequest request, CancellationToken ct = default)
     {
-        var outcome = await tenantService.DeactivateAsync(new DeactivateTenantRequest { TenantId = tenantId }, ct);
-        return outcome;
+        await ValidateAsync(request, ct);
+        return await tenantService.DeactivateAsync(request, ct);
     }
 
     [HttpDelete("{tenantId:guid}")]
