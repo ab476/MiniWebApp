@@ -1,48 +1,113 @@
+using Microsoft.Extensions.Configuration;
+using MiniWebApp.AppHost.Options;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
-var cache = builder.AddRedis("cache");
+AppHostOptions options = builder.Configuration
+       .GetSection("AppHost")
+       .Get<AppHostOptions>()!;
 
-var postgres = builder.AddPostgres("postgres");
-var userdb = postgres.AddDatabase("userdb");
+IResourceBuilder<RedisResource>? cache = null;
+IResourceBuilder<PostgresServerResource>? postgres = null;
+IResourceBuilder<PostgresDatabaseResource>? userdb = null;
+IResourceBuilder<PostgresDatabaseResource>? taskdb = null;
+IResourceBuilder<KafkaServerResource>? kafka = null;
 
+//
+// INFRASTRUCTURE
+//
 
-//var mysqldb = mysql.AddDatabase("mysqldb");
+if (options.Infrastructure.Kafka)
+{
+    kafka = builder.AddKafka("kafka")
+        .WithKafkaUI()
+        .WithDataVolume()
+        .WithLifetime(ContainerLifetime.Persistent);
+}
 
-//var apiService = builder.AddProject<Projects.MiniWebApp_ApiService>("apiservice")
-//    .WithHttpHealthCheck("/health")
-//    .WithReference(cache)
-//    .WaitFor(mysqldb)
-//    .WithReference(mysqldb);
+if (options.Infrastructure.Redis)
+{
+    cache = builder.AddRedis("cache");
+}
 
-//var localstack = builder.AddContainer("localstack", "localstack/localstack")
-//    .WithHttpEndpoint(port: 4566, targetPort: 4566)
-//    .WithEnvironment("SERVICES", "s3")   // optional: limit to S3
-//    .WithEnvironment("DEBUG", "1");
+if (options.Infrastructure.Postgres)
+{
+    postgres = builder.AddPostgres("postgres");
 
-//builder.AddProject<Projects.MiniWebApp_Web>("webfrontend")
-//    .WithExternalHttpEndpoints()
-//    .WithHttpHealthCheck("/health")
-//    .WithReference(cache)
-//    .WaitFor(cache)
-//    .WithReference(apiService)
-//    .WaitFor(apiService);
+    // Multiple databases from same server
+    userdb = postgres.AddDatabase("userdb");
+    taskdb = postgres.AddDatabase("taskdb");
+}
 
-//// React app
-//var react = builder.AddJavaScriptApp("web", "../miniwebapp.reactapp", "dev")
-//    .WithNpm(installCommand: "ci", installArgs: ["--legacy-peer-deps"]);
-////.WithHttpEndpoint(port: 50568); // Vite default
-////.WithEnvironment("VITE_API_BASE_URL", api.GetEndpoint("http");
+if (options.Infrastructure.LocalStack)
+{
+    builder.AddContainer("localstack", "localstack/localstack")
+        .WithHttpEndpoint(4566, 4566)
+        .WithEnvironment("SERVICES", "s3")
+        .WithEnvironment("DEBUG", "1");
+}
 
-//builder.AddProject<Projects.MiniWebApp_TaskAPI>("miniwebapp-taskapi")
-//    .WithReference(mysqldb)
-//    .WaitFor(mysqldb);
+//
+// PROJECTS
+//
 
+if (options.Projects.UserApi)
+{
+    var userApi = builder.AddProject<Projects.MiniWebApp_UserApi>("miniwebapp-userapi");
 
-builder.AddProject<Projects.MiniWebApp_UserApi>("miniwebapp-userapi")
-    .WithReference(userdb)
-    .WaitFor(userdb);
-//.WaitFor(cache)
-//.WithReference(cache);
+    if (userdb is not null)
+        userApi.WithReference(userdb).WaitFor(userdb);
 
+    if (cache is not null)
+        userApi.WithReference(cache).WaitFor(cache);
+
+    if (kafka is not null)
+        userApi.WithReference(kafka).WaitFor(kafka);
+}
+
+if (options.Projects.ApiService)
+{
+    var apiService = builder.AddProject<Projects.MiniWebApp_ApiService>("apiservice")
+        .WithHttpHealthCheck("/health");
+
+    if (cache is not null)
+        apiService.WithReference(cache);
+
+    if (taskdb is not null)
+        apiService.WithReference(taskdb).WaitFor(taskdb);
+
+    if (kafka is not null)
+        apiService.WithReference(kafka).WaitFor(kafka);
+}
+
+if (options.Projects.WebFrontend)
+{
+    var web = builder.AddProject<Projects.MiniWebApp_Web>("webfrontend")
+        .WithExternalHttpEndpoints()
+        .WithHttpHealthCheck("/health");
+
+    if (cache is not null)
+        web.WithReference(cache).WaitFor(cache);
+}
+
+if (options.Projects.ReactApp)
+{
+    builder.AddJavaScriptApp("web", "../miniwebapp.reactapp", "dev")
+        .WithNpm(true, "ci", ["--legacy-peer-deps"]);
+}
+
+if (options.Projects.TaskApi && taskdb is not null)
+{
+    builder.AddProject<Projects.MiniWebApp_TaskAPI>("miniwebapp-taskapi")
+        .WithReference(taskdb)
+        .WaitFor(taskdb);
+}
+
+if (options.Projects.KakfaApi && kafka is not null)
+{
+    builder.AddProject<Projects.KakfaApi>("kakfaapi")
+        .WithReference(kafka)
+        .WaitFor(kafka);
+}
 
 builder.Build().Run();

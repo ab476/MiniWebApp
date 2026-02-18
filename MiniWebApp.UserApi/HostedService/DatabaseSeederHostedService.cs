@@ -51,7 +51,7 @@ public sealed class DatabaseSeederHostedService(
             return;
         foreach (var tenant in _options.Tenants)
         {
-            var tenantRes = await tenantService.CreateAsync(new CreateTenantRequest(tenant.Name, tenant.Domain), ct);
+            var tenantRes = await tenantService.CreateAsync(new CreateTenantRequest { Name = tenant.Name, Domain = tenant.Domain }, ct);
             _cachedTenants.Add(tenantRes.Value!);
         }
     }

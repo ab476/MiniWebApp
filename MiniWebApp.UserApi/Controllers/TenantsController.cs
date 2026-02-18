@@ -70,7 +70,7 @@ public class TenantsController(TenantService tenantService) : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<Outcome> ActivateAsync(Guid tenantId, CancellationToken ct = default)
     {
-        var outcome = await tenantService.ActivateAsync(new ActivateTenantRequest(tenantId), ct);
+        var outcome = await tenantService.ActivateAsync(new ActivateTenantRequest { TenantId = tenantId }, ct);
         return outcome;
     }
 
@@ -80,7 +80,7 @@ public class TenantsController(TenantService tenantService) : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<Outcome> DeactivateAsync(Guid tenantId, CancellationToken ct = default)
     {
-        var outcome = await tenantService.DeactivateAsync(new DeactivateTenantRequest(tenantId), ct);
+        var outcome = await tenantService.DeactivateAsync(new DeactivateTenantRequest { TenantId = tenantId }, ct);
         return outcome;
     }
 

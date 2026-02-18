@@ -6,6 +6,10 @@
   <Folder Name="/Common/">
     <Project Path="MiniWebApp.Core/MiniWebApp.Core.csproj" Id="ba3816f1-2ccd-49d5-b639-15f8fc724b61" />
   </Folder>
+  <Folder Name="/Services/" />
+  <Folder Name="/Services/Kafka/">
+    <Project Path="KakfaApi/KakfaApi.csproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="MiniWebApp/dummy-api-ideas.md" />

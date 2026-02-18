@@ -18,24 +18,23 @@ internal static class SecurityInputValidator
         return !string.Equals(input, sanitized, StringComparison.Ordinal);
     }
 
+    private static readonly string[] SqlMetaCharacters = new[]
+    {
+        "--", ";--", ";", "/*", "*/",
+        "@@", "char(", "nchar(", "varchar(",
+        "alter ", "begin ", "cast(", "create ",
+        "cursor ", "declare ", "delete ",
+        "drop ", "end ", "exec ", "execute ",
+        "insert ", "kill ", "select ",
+        "sys.", "sysobjects", "syscolumns",
+        "update "
+    };
     public static bool ContainsSqlMetaCharacters(string? input)
     {
         if (string.IsNullOrWhiteSpace(input))
             return false;
 
-        string[] dangerousPatterns =
-        {
-            "--", ";--", ";", "/*", "*/",
-            "@@", "char(", "nchar(", "varchar(",
-            "alter ", "begin ", "cast(", "create ",
-            "cursor ", "declare ", "delete ",
-            "drop ", "end ", "exec ", "execute ",
-            "insert ", "kill ", "select ",
-            "sys.", "sysobjects", "syscolumns",
-            "update "
-        };
-
-        return dangerousPatterns.Any(p =>
+        return SqlMetaCharacters.Any(p =>
             input.Contains(p, StringComparison.OrdinalIgnoreCase));
     }
 }
