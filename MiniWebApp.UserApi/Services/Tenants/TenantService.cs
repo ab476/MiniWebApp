@@ -75,7 +75,7 @@ public class TenantService(UserDbContext _db) : ITenantService
 
         return rowsAffected == 1
             ? StatusCodes.Status200OK
-            : (StatusCodes.Status404NotFound, "Tenant not found.");
+            : ("Tenant not found.", StatusCodes.Status404NotFound);
     }
 
     public async Task<Outcome> ActivateAsync(
@@ -91,7 +91,7 @@ public class TenantService(UserDbContext _db) : ITenantService
 
         return rowsAffected == 1
             ? StatusCodes.Status200OK
-            : (StatusCodes.Status404NotFound, "Tenant not found or already active.");
+            : ("Tenant not found or already active.", StatusCodes.Status404NotFound);
     }
 
     public async Task<Outcome> DeactivateAsync(
@@ -107,7 +107,7 @@ public class TenantService(UserDbContext _db) : ITenantService
 
         return rowsAffected == 1
             ? StatusCodes.Status200OK
-            : (StatusCodes.Status404NotFound, "Tenant not found or already inactive.");
+            : ("Tenant not found or already inactive.", StatusCodes.Status404NotFound);
     }
 
     public async Task<Outcome> DeleteAsync(Guid tenantId, CancellationToken ct = default)
@@ -119,6 +119,6 @@ public class TenantService(UserDbContext _db) : ITenantService
 
         return rowsAffected == 1
             ? StatusCodes.Status200OK
-            : (StatusCodes.Status404NotFound, "Tenant not found.");
+            : ("Tenant not found.", StatusCodes.Status404NotFound);
     }
 }

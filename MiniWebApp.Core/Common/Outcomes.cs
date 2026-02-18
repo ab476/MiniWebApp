@@ -55,7 +55,7 @@ public sealed class Outcome(bool isSuccess, string? error, int? statusCode) : IO
     }
 
     // (statusCode, errorMessage) -> Failure
-    public static implicit operator Outcome((int statusCode, string error) tuple)
+    public static implicit operator Outcome((string error, int statusCode) tuple)
     {
         return new(false, tuple.error, tuple.statusCode);
     }

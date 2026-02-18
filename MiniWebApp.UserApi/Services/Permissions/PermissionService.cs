@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MiniWebApp.Core.Common;
+using MiniWebApp.UserApi.Contracts.Roles;
 using MiniWebApp.UserApi.Domain;
 using MiniWebApp.UserApi.Domain.Models;
 using MiniWebApp.UserApi.Models.Permissions;
@@ -45,10 +46,8 @@ internal sealed class PermissionService(
         CreatePermissionRequest request,
         CancellationToken ct)
     {
-        var exists = await db.TPermissions
-            .AnyAsync(x => x.Code == request.Code, ct);
 
-        if (exists)
+        if (await db.TPermissions.AnyAsync(x => x.Code == request.Code, ct))
             return ("Permission code already exists.", StatusCodes.Status409Conflict);
 
         var entity = new TPermission
@@ -62,42 +61,37 @@ internal sealed class PermissionService(
         db.TPermissions.Add(entity);
         await db.SaveChangesAsync(ct);
 
-        return Result.Success(Map(entity));
+        return (StatusCodes.Status201Created, entity.ToResponse());
     }
 
-    public async Task<Result<PermissionResponse>> GetByIdAsync(
+    public async Task<Outcome<PermissionResponse>> GetByIdAsync(
         Guid id,
         CancellationToken ct)
     {
         var entity = await db.TPermissions
             .AsNoTracking()
+            .ProjectToResponse()
             .FirstOrDefaultAsync(x => x.Id == id, ct);
 
         if (entity is null)
-            return Result.Failure<PermissionResponse>("Permission not found.");
+            return ("Permission not found.", StatusCodes.Status404NotFound);
 
-        return Result.Success(Map(entity));
+        return (StatusCodes.Status200OK, entity);
     }
 
-    public async Task<Result<IReadOnlyList<PermissionResponse>>> GetAllAsync(
+    public async Task<Outcome<IReadOnlyList<PermissionResponse>>> GetAllAsync(
         CancellationToken ct)
     {
         var list = await db.TPermissions
             .AsNoTracking()
             .OrderBy(x => x.Code)
-            .Select(x => new PermissionResponse
-            {
-                Id = x.Id,
-                Code = x.Code,
-                Description = x.Description,
-                Category = x.Category
-            })
+            .ProjectToResponse()
             .ToListAsync(ct);
 
-        return Result.Success<IReadOnlyList<PermissionResponse>>(list);
+        return (StatusCodes.Status200OK, list);
     }
 
-    public async Task<Result<PermissionResponse>> UpdateAsync(
+    public async Task<Outcome<PermissionResponse>> UpdateAsync(
         Guid id,
         UpdatePermissionRequest request,
         CancellationToken ct)
@@ -106,13 +100,13 @@ internal sealed class PermissionService(
             .FirstOrDefaultAsync(x => x.Id == id, ct);
 
         if (entity is null)
-            return Result.Failure<PermissionResponse>("Permission not found.");
+            return ("Permission not found.", StatusCodes.Status404NotFound);
 
         var duplicate = await db.TPermissions
             .AnyAsync(x => x.Code == request.Code && x.Id != id, ct);
 
         if (duplicate)
-            return Result.Failure<PermissionResponse>("Permission code already exists.");
+            return ("Permission code already exists.", StatusCodes.Status409Conflict);
 
         entity.Code = request.Code;
         entity.Description = request.Description;
@@ -120,10 +114,10 @@ internal sealed class PermissionService(
 
         await db.SaveChangesAsync(ct);
 
-        return Result.Success(Map(entity));
+        return (StatusCodes.Status200OK, entity.ToResponse());
     }
 
-    public async Task<Result> DeleteAsync(
+    public async Task<Outcome> DeleteAsync(
         Guid id,
         CancellationToken ct)
     {
@@ -131,24 +125,13 @@ internal sealed class PermissionService(
             .FirstOrDefaultAsync(x => x.Id == id, ct);
 
         if (entity is null)
-            return Result.Failure("Permission not found.");
+            return ("Permission not found.", StatusCodes.Status404NotFound);
 
         db.TPermissions.Remove(entity);
         await db.SaveChangesAsync(ct);
 
-        return Result.Success();
+        return StatusCodes.Status204NoContent;
     }
 
-    // ========================================================
-    // MAPPING
-    // ========================================================
-
-    private static PermissionResponse Map(TPermission entity)
-        => new()
-        {
-            Id = entity.Id,
-            Code = entity.Code,
-            Description = entity.Description,
-            Category = entity.Category
-        };
+    
 }

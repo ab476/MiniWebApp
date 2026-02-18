@@ -79,7 +79,7 @@ public class RoleService(UserDbContext _db) : IRoleService
 
         return rows == 1
             ? StatusCodes.Status200OK
-            : (StatusCodes.Status404NotFound, "Role not found.");
+            : ("Role not found.", StatusCodes.Status404NotFound);
     }
 
     public async Task<Outcome> DeleteAsync(Guid roleId, CancellationToken ct = default)
@@ -91,6 +91,6 @@ public class RoleService(UserDbContext _db) : IRoleService
 
         return rows == 1
             ? StatusCodes.Status200OK
-            : (StatusCodes.Status404NotFound, "Role not found.");
+            : ("Role not found.", StatusCodes.Status404NotFound);
     }
 }
