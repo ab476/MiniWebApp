@@ -7,8 +7,8 @@ namespace MiniWebApp.UserApi.Contracts.Tenants;
 [Mapper]
 public static partial class TenantMapper
 {
-    public static partial TenantResponse ToResponse(this Tenant tenant);
-    public static partial IQueryable<TenantResponse> ProjectToResponse(this IQueryable<Tenant> query);
+    public static partial TenantResponse ToResponse(this TTenant tenant);
+    public static partial IQueryable<TenantResponse> ProjectToResponse(this IQueryable<TTenant> query);
 
-    public static partial Tenant ToEntity(this TenantResponse response);
+    public static partial TTenant ToEntity(this TenantResponse response);
 }

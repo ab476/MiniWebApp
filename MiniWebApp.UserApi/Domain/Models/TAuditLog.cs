@@ -1,6 +1,6 @@
 ﻿namespace MiniWebApp.UserApi.Domain.Models;
 
-public class AuditLog
+public class TAuditLog
 {
     public Guid Id { get; set; }
 
@@ -20,5 +20,5 @@ public class AuditLog
 
     public string? CorrelationId { get; set; }
 
-    public Tenant Tenant { get; set; } = default!;
+    public TTenant Tenant { get; set; } = default!;
 }

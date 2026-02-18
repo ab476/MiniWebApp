@@ -4,9 +4,9 @@ using MiniWebApp.UserApi.Domain.Models;
 
 namespace MiniWebApp.UserApi.Domain.Configurations;
 
-public class TenantConfiguration : IEntityTypeConfiguration<Tenant>
+public class TenantConfiguration : IEntityTypeConfiguration<TTenant>
 {
-    public void Configure(EntityTypeBuilder<Tenant> builder)
+    public void Configure(EntityTypeBuilder<TTenant> builder)
     {
         builder.ToTable("tenants");
 

@@ -4,9 +4,9 @@ using MiniWebApp.UserApi.Domain.Models;
 
 namespace MiniWebApp.UserApi.Domain.Configurations;
 
-public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
+public class RefreshTokenConfiguration : IEntityTypeConfiguration<TRefreshToken>
 {
-    public void Configure(EntityTypeBuilder<RefreshToken> builder)
+    public void Configure(EntityTypeBuilder<TRefreshToken> builder)
     {
         builder.ToTable("refresh_tokens", "public");
 

@@ -4,9 +4,9 @@ using MiniWebApp.UserApi.Domain.Models;
 
 namespace MiniWebApp.UserApi.Domain.Configurations;
 
-public class RolePermissionConfiguration : IEntityTypeConfiguration<RolePermission>
+public class RolePermissionConfiguration : IEntityTypeConfiguration<TRolePermission>
 {
-    public void Configure(EntityTypeBuilder<RolePermission> builder)
+    public void Configure(EntityTypeBuilder<TRolePermission> builder)
     {
         builder.ToTable("role_permissions", "public");
 

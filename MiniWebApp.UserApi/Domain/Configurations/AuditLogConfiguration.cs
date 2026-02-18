@@ -4,9 +4,9 @@ using MiniWebApp.UserApi.Domain.Models;
 
 namespace MiniWebApp.UserApi.Domain.Configurations;
 
-public class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
+public class AuditLogConfiguration : IEntityTypeConfiguration<TAuditLog>
 {
-    public void Configure(EntityTypeBuilder<AuditLog> builder)
+    public void Configure(EntityTypeBuilder<TAuditLog> builder)
     {
         builder.ToTable("audit_logs", "public");
 

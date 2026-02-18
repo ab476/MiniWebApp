@@ -1,6 +1,6 @@
 ﻿namespace MiniWebApp.UserApi.Domain.Models;
 
-public class User
+public class TUser
 {
     public Guid Id { get; set; }
 
@@ -32,7 +32,7 @@ public class User
 
     public DateTime RowVersion { get; set; }
 
-    public Tenant Tenant { get; set; } = default!;
+    public TTenant Tenant { get; set; } = default!;
 
-    public ICollection<UserRole> UserRoles { get; set; } = [];
+    public ICollection<TUserRole> UserRoles { get; set; } = [];
 }

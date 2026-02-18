@@ -11,7 +11,7 @@ public class TenantService(UserDbContext _db) : ITenantService
 {
     public async Task<Outcome<TenantResponse>> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        var tenant = await _db.Tenants
+        var tenant = await _db.TTenants
             .TagWith($"{nameof(TenantService)}.{nameof(GetByIdAsync)}")
             .AsNoTracking()
             .FirstOrDefaultAsync(t => t.Id == id, ct);
@@ -29,7 +29,7 @@ public class TenantService(UserDbContext _db) : ITenantService
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, 100);
 
-        var tenants = await _db.Tenants
+        var tenants = await _db.TTenants
             .TagWith($"{nameof(TenantService)}.{nameof(GetPagedAsync)}")
             .AsNoTracking()
             .OrderByDescending(t => t.CreatedAt)
@@ -45,7 +45,7 @@ public class TenantService(UserDbContext _db) : ITenantService
         CreateTenantRequest request,
         CancellationToken ct = default)
     {
-        var tenant = new Tenant
+        var tenant = new TTenant
         {
             Id = Guid.NewGuid(),
             Name = request.Name,
@@ -54,7 +54,7 @@ public class TenantService(UserDbContext _db) : ITenantService
             CreatedAt = DateTime.UtcNow
         };
 
-        _db.Tenants.Add(tenant);
+        _db.TTenants.Add(tenant);
         await _db.SaveChangesAsync(ct);
 
         return (StatusCodes.Status201Created, tenant.ToResponse());
@@ -65,7 +65,7 @@ public class TenantService(UserDbContext _db) : ITenantService
         UpdateTenantRequest request,
         CancellationToken ct = default)
     {
-        var rowsAffected = await _db.Tenants
+        var rowsAffected = await _db.TTenants
             .TagWith($"{nameof(TenantService)}.{nameof(UpdateAsync)}")
             .Where(t => t.Id == tenantId)
             .ExecuteUpdateAsync(setters => setters
@@ -82,7 +82,7 @@ public class TenantService(UserDbContext _db) : ITenantService
         ActivateTenantRequest request,
         CancellationToken ct = default)
     {
-        var rowsAffected = await _db.Tenants
+        var rowsAffected = await _db.TTenants
             .TagWith($"{nameof(TenantService)}.{nameof(ActivateAsync)}")
             .Where(t => t.Id == request.TenantId && !t.IsActive)
             .ExecuteUpdateAsync(setters => setters
@@ -98,7 +98,7 @@ public class TenantService(UserDbContext _db) : ITenantService
         DeactivateTenantRequest request,
         CancellationToken ct = default)
     {
-        var rowsAffected = await _db.Tenants
+        var rowsAffected = await _db.TTenants
             .TagWith($"{nameof(TenantService)}.{nameof(DeactivateAsync)}")
             .Where(t => t.Id == request.TenantId && t.IsActive)
             .ExecuteUpdateAsync(setters => setters
@@ -112,7 +112,7 @@ public class TenantService(UserDbContext _db) : ITenantService
 
     public async Task<Outcome> DeleteAsync(Guid tenantId, CancellationToken ct = default)
     {
-        var rowsAffected = await _db.Tenants
+        var rowsAffected = await _db.TTenants
             .TagWith($"{nameof(TenantService)}.{nameof(DeleteAsync)}")
             .Where(t => t.Id == tenantId)
             .ExecuteDeleteAsync(ct);

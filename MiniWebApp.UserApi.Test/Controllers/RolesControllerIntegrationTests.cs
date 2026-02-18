@@ -165,7 +165,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
         using var scope = Factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<UserDbContext>();
 
-        var roles = await db.Roles.ToListAsync();
+        var roles = await db.TRoles.ToListAsync();
 
         roles.Should().NotBeNull(); // Table still accessible
     }

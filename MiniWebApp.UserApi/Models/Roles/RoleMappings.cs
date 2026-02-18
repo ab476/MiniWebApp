@@ -7,10 +7,10 @@ namespace MiniWebApp.UserApi.Contracts.Roles;
 [Mapper]
 public static partial class RoleMappings
 {
-    [MapperIgnoreSource(nameof(Role.Tenant))]
-    [MapperIgnoreSource(nameof(Role.UserRoles))]
-    [MapperIgnoreSource(nameof(Role.RolePermissions))]
-    public static partial RoleResponse ToResponse(this Role role);
+    [MapperIgnoreSource(nameof(TRole.Tenant))]
+    [MapperIgnoreSource(nameof(TRole.UserRoles))]
+    [MapperIgnoreSource(nameof(TRole.RolePermissions))]
+    public static partial RoleResponse ToResponse(this TRole role);
 
-    public static partial IQueryable<RoleResponse> ProjectToResponse(this IQueryable<Role> query);
+    public static partial IQueryable<RoleResponse> ProjectToResponse(this IQueryable<TRole> query);
 }

@@ -4,9 +4,9 @@ using MiniWebApp.UserApi.Domain.Models;
 
 namespace MiniWebApp.UserApi.Domain.Configurations;
 
-public class OutboxMessageConfiguration : IEntityTypeConfiguration<OutboxMessage>
+public class OutboxMessageConfiguration : IEntityTypeConfiguration<TOutboxMessage>
 {
-    public void Configure(EntityTypeBuilder<OutboxMessage> builder)
+    public void Configure(EntityTypeBuilder<TOutboxMessage> builder)
     {
         builder.ToTable("outbox_messages", "public");
 

@@ -5,23 +5,23 @@ namespace MiniWebApp.UserApi.Domain;
 
 public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(options)
 {
-    public DbSet<Tenant> Tenants => Set<Tenant>();
-    public DbSet<User> Users => Set<User>();
-    public DbSet<Role> Roles => Set<Role>();
-    public DbSet<Permission> Permissions => Set<Permission>();
-    public DbSet<UserRole> UserRoles => Set<UserRole>();
-    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
-    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
-    public DbSet<LoginHistory> LoginHistories => Set<LoginHistory>();
-    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
-    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+    public DbSet<TTenant> TTenants => Set<TTenant>();
+    public DbSet<TUser> TUsers => Set<TUser>();
+    public DbSet<TRole> TRoles => Set<TRole>();
+    public DbSet<TPermission> TPermissions => Set<TPermission>();
+    public DbSet<TUserRole> TUserRoles => Set<TUserRole>();
+    public DbSet<TRolePermission> TRolePermissions => Set<TRolePermission>();
+    public DbSet<TRefreshToken> TRefreshTokens => Set<TRefreshToken>();
+    public DbSet<TLoginHistory> TLoginHistories => Set<TLoginHistory>();
+    public DbSet<TAuditLog> TAuditLogs => Set<TAuditLog>();
+    public DbSet<TOutboxMessage> TOutboxMessages => Set<TOutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(typeof(UserDbContext).Assembly);
 
         // Global soft delete filter
-        builder.Entity<User>()
+        builder.Entity<TUser>()
             .HasQueryFilter(u => !u.IsDeleted);
 
         base.OnModelCreating(builder);

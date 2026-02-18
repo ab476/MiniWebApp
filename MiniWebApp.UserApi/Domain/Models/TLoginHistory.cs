@@ -1,6 +1,6 @@
 ﻿namespace MiniWebApp.UserApi.Domain.Models;
 
-public class LoginHistory
+public class TLoginHistory
 {
     public Guid Id { get; set; }
 
@@ -15,6 +15,6 @@ public class LoginHistory
 
     public bool IsSuccessful { get; set; }
 
-    public User User { get; set; } = default!;
-    public Tenant Tenant { get; set; } = default!;
+    public TUser User { get; set; } = default!;
+    public TTenant Tenant { get; set; } = default!;
 }

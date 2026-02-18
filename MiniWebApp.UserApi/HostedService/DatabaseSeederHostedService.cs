@@ -25,7 +25,7 @@ public sealed class DatabaseSeederHostedService(
     {
         using var scope = _provider.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<UserDbContext>();
-        var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
+        var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<TUser>>();
 
         var tenatService = scope.ServiceProvider.GetRequiredService<ITenantService>();
         var roleService = scope.ServiceProvider.GetRequiredService<IRoleService>();
@@ -48,7 +48,7 @@ public sealed class DatabaseSeederHostedService(
     private readonly List<TenantResponse> _cachedTenants = [];
     private async Task SeedTenantsAsync(UserDbContext db, ITenantService tenantService, CancellationToken ct)
     {
-        if (db.Tenants.Any())
+        if (db.TTenants.Any())
             return;
         foreach (var tenant in _options.Tenants)
         {
@@ -59,7 +59,7 @@ public sealed class DatabaseSeederHostedService(
 
     private async Task SeedRolesAsync(UserDbContext db, IRoleService roleService, CancellationToken ct)
     {
-        if (await db.Roles.AnyAsync(ct))
+        if (await db.TRoles.AnyAsync(ct))
             return;
 
         foreach (var tenant in _cachedTenants)
@@ -82,15 +82,15 @@ public sealed class DatabaseSeederHostedService(
 
     private async Task SeedUsersAsync(
         UserDbContext db,
-        IPasswordHasher<User> hasher,
+        IPasswordHasher<TUser> hasher,
         CancellationToken ct)
     {
         foreach (var userSeed in _options.Users)
         {
-            if (await db.Users.AnyAsync(u => u.Email == userSeed.Email, ct))
+            if (await db.TUsers.AnyAsync(u => u.Email == userSeed.Email, ct))
                 continue;
 
-            var user = new User
+            var user = new TUser
             {
                 Id = Guid.NewGuid(),
                 Email = userSeed.Email,
@@ -101,19 +101,19 @@ public sealed class DatabaseSeederHostedService(
 
             foreach (var roleName in userSeed.Roles)
             {
-                var role = await db.Roles
+                var role = await db.TRoles
                     .FirstOrDefaultAsync(r => r.Name == roleName, ct);
 
                 if (role is null)
                     continue;
 
-                user.UserRoles.Add(new UserRole
+                user.UserRoles.Add(new TUserRole
                 {
                     RoleId = role.Id
                 });
             }
 
-            db.Users.Add(user);
+            db.TUsers.Add(user);
         }
     }
 }

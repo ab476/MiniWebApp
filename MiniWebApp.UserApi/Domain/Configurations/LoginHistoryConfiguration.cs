@@ -4,9 +4,9 @@ using MiniWebApp.UserApi.Domain.Models;
 
 namespace MiniWebApp.UserApi.Domain.Configurations;
 
-public class LoginHistoryConfiguration : IEntityTypeConfiguration<LoginHistory>
+public class LoginHistoryConfiguration : IEntityTypeConfiguration<TLoginHistory>
 {
-    public void Configure(EntityTypeBuilder<LoginHistory> builder)
+    public void Configure(EntityTypeBuilder<TLoginHistory> builder)
     {
         builder.ToTable("login_history", "public");
 

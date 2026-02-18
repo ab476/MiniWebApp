@@ -1,6 +1,6 @@
 ﻿namespace MiniWebApp.UserApi.Domain.Models;
 
-public class OutboxMessage
+public class TOutboxMessage
 {
     public Guid Id { get; set; }
 
