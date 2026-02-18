@@ -1,7 +1,7 @@
 ﻿using MiniWebApp.Core.Common;
 using MiniWebApp.UserApi.Models.Roles;
 
-namespace MiniWebApp.UserApi.Application;
+namespace MiniWebApp.UserApi.Services;
 
 public interface IRoleService
 {

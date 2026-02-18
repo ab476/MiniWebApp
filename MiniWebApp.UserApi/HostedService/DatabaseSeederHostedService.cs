@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using MiniWebApp.UserApi.Application;
-using MiniWebApp.UserApi.Application.Tenants;
 using MiniWebApp.UserApi.Contracts.Roles;
 using MiniWebApp.UserApi.Contracts.Tenants;
 using MiniWebApp.UserApi.Domain;
@@ -10,6 +8,8 @@ using MiniWebApp.UserApi.Domain.Models;
 using MiniWebApp.UserApi.Models.Roles;
 using MiniWebApp.UserApi.Models.Tenants;
 using MiniWebApp.UserApi.Options;
+using MiniWebApp.UserApi.Services;
+using MiniWebApp.UserApi.Services.Tenants;
 
 namespace MiniWebApp.UserApi.HostedService;
 

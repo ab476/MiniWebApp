@@ -5,7 +5,7 @@ using MiniWebApp.UserApi.Domain;
 using MiniWebApp.UserApi.Domain.Models;
 using MiniWebApp.UserApi.Models.Roles;
 
-namespace MiniWebApp.UserApi.Application;
+namespace MiniWebApp.UserApi.Services;
 
 public class RoleService(UserDbContext _db) : IRoleService
 {

@@ -1,4 +1,5 @@
 using MiniWebApp.ApiService.Extensions;
+using MiniWebApp.ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
 

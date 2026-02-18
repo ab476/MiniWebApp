@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MiniWebApp.Core.Exceptions;
 using MiniWebApp.Core.Security;
+using MiniWebApp.ServiceDefaults;
 using MiniWebApp.UserApi;
-using MiniWebApp.UserApi.Application;
-using MiniWebApp.UserApi.Application.Tenants;
 using MiniWebApp.UserApi.Domain;
+using MiniWebApp.UserApi.Services;
+using MiniWebApp.UserApi.Services.Tenants;
 
 var builder = WebApplication.CreateBuilder(args);
 

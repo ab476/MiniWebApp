@@ -1,7 +1,7 @@
 ﻿using MiniWebApp.Core.Common;
 using MiniWebApp.UserApi.Models.Tenants;
 
-namespace MiniWebApp.UserApi.Application.Tenants;
+namespace MiniWebApp.UserApi.Services.Tenants;
 
 public interface ITenantService
 {

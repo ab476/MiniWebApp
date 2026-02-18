@@ -1,3 +1,4 @@
+using MiniWebApp.ServiceDefaults;
 using MiniWebApp.TaskAPI.Domain;
 
 var builder = WebApplication.CreateBuilder(args);

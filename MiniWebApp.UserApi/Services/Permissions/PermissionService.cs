@@ -5,7 +5,7 @@ using MiniWebApp.UserApi.Domain;
 using MiniWebApp.UserApi.Domain.Models;
 using MiniWebApp.UserApi.Models.Permissions;
 
-namespace MiniWebApp.UserApi.Application.Permissions;
+namespace MiniWebApp.UserApi.Services.Permissions;
 
 // ============================================================
 // SERVICE CONTRACT

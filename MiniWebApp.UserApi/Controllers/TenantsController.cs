@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using MiniWebApp.Core.Auth;
 using MiniWebApp.Core.Common;
 using MiniWebApp.Core.Controllers;
-using MiniWebApp.UserApi.Application.Tenants;
 using MiniWebApp.UserApi.Models.Tenants;
+using MiniWebApp.UserApi.Services.Tenants;
 
 namespace MiniWebApp.UserApi.Controllers;
 

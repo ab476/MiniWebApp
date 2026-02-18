@@ -5,7 +5,7 @@ using MiniWebApp.UserApi.Domain;
 using MiniWebApp.UserApi.Domain.Models;
 using MiniWebApp.UserApi.Models.Tenants;
 
-namespace MiniWebApp.UserApi.Application.Tenants;
+namespace MiniWebApp.UserApi.Services.Tenants;
 
 public class TenantService(UserDbContext _db) : ITenantService
 {

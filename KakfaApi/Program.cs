@@ -1,4 +1,5 @@
 using KakfaApi;
+using MiniWebApp.ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
 
