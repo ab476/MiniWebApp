@@ -1,10 +1,13 @@
-﻿namespace MiniWebApp.UserApi.Models.Permissions;
+﻿using MemoryPack;
+
+namespace MiniWebApp.UserApi.Models.Permissions;
 
 // ============================================================
 // RESPONSE MODEL
 // ============================================================
 
-public sealed record PermissionResponse
+[MemoryPackable]
+public sealed partial  record PermissionResponse
 {
     public Guid Id { get; init; }
     public string Code { get; init; } = default!;

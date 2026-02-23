@@ -16,6 +16,7 @@ public sealed class TenantSeed
 public sealed class RoleSeed
 {
     public string Name { get; init; } = default!;
+    public bool IncludeAll { get; init; } = false;
     public List<string> Permissions { get; init; } = [];
 }
 

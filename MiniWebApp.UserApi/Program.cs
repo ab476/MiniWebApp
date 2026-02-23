@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MiniWebApp.Core.Exceptions;
@@ -7,6 +8,9 @@ using MiniWebApp.Core.Security;
 using MiniWebApp.ServiceDefaults;
 using MiniWebApp.UserApi;
 using MiniWebApp.UserApi.Domain;
+using MiniWebApp.UserApi.Domain.Models;
+using MiniWebApp.UserApi.HostedService;
+using MiniWebApp.UserApi.Options;
 using MiniWebApp.UserApi.Services;
 using MiniWebApp.UserApi.Services.Tenants;
 
@@ -18,6 +22,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddApplicationAuthorization();
+
+builder.AddDatabaseSeeding<TUser>();
+
 
 
 builder.Services.AddScoped<TenantService>().AddScoped<RoleService>();

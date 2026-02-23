@@ -3,36 +3,45 @@
 public class TUser
 {
     public Guid Id { get; set; }
-
     public Guid TenantId { get; set; }
 
-    public string Email { get; set; } = default!;
-    public string NormalizedEmail { get; set; } = default!;
+    public string Email
+    {
+        get;
+        set
+        {
+            field = value;
+            NormalizedEmail = value.ToUpperInvariant();
+        }
+    } = default!;
+    public string NormalizedEmail { get; private set; } = default!;
 
-    public string Username { get; set; } = default!;
-    public string NormalizedUsername { get; set; } = default!;
+    public string UserName
+    {
+        get;
+        set
+        {
+            field = value;
+            NormalizedUsername = value.ToUpperInvariant();
+        }
+    } = default!;
+    public string NormalizedUsername { get; private set; } = default!;
 
     public string PasswordHash { get; set; } = default!;
-    public string SecurityStamp { get; set; } = default!;
-
-    public short Status { get; set; }
+    public bool EmailConfirmed { get; set; }
+    public UserStatus Status { get; set; } = UserStatus.Pending;
 
     public int FailedLoginAttempts { get; set; }
-
     public DateTime? LockoutEnd { get; set; }
     public DateTime? LastLoginAt { get; set; }
 
-    public bool IsDeleted { get; set; }
-
     public DateTime CreatedAt { get; set; }
     public Guid? CreatedBy { get; set; }
-
-    public DateTime? UpdatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
     public Guid? UpdatedBy { get; set; }
 
-    public DateTime RowVersion { get; set; }
-
+    // Navigation
     public TTenant Tenant { get; set; } = default!;
-
     public ICollection<TUserRole> UserRoles { get; set; } = [];
 }
+public enum UserStatus { Pending = 0, Active = 1, Suspended = 2, Deleted = 3 }

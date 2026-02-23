@@ -22,7 +22,7 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbC
 
         // Global soft delete filter
         builder.Entity<TUser>()
-            .HasQueryFilter(u => !u.IsDeleted);
+            .HasQueryFilter(u => u.Status == UserStatus.Active);
 
         base.OnModelCreating(builder);
     }

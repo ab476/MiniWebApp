@@ -32,7 +32,9 @@ if (options.Infrastructure.Redis)
 
 if (options.Infrastructure.Postgres)
 {
-    postgres = builder.AddPostgres("postgres");
+    postgres = builder.AddPostgres("postgres")
+        .WithLifetime(ContainerLifetime.Persistent)
+        .WithDataVolume();
 
     // Multiple databases from same server
     userdb = postgres.AddDatabase("userdb");

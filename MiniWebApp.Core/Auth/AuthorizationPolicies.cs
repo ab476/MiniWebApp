@@ -28,6 +28,11 @@ public static class AppPermissions
             [Read, Write, Manage];
     }
 
+    public static class Permissions
+    {
+        public const string Read = "permissions.read";
+        public static IReadOnlyCollection<string> All => [Read];
+    }
     public static class Roles
     {
         public const string Read = "roles.read";
@@ -49,7 +54,7 @@ public static class AppPermissions
     }
 
     public static IReadOnlyCollection<string> All =>
-        [.. Tenants.All , .. Roles.All, .. Users.All];
+        [.. Tenants.All , .. Roles.All, .. Users.All, .. Permissions.All];
 }
 
 public static class AppClaimTypes

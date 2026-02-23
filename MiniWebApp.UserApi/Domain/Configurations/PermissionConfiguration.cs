@@ -19,7 +19,11 @@ public class PermissionConfiguration : IEntityTypeConfiguration<TPermission>
         builder.Property(x => x.Code)
                .HasColumnName("code")
                .HasMaxLength(150)
-               .IsRequired();
+               .IsRequired()
+               .HasConversion(
+                   v => v.ToLowerInvariant().Trim(),
+                   v => v
+               );
 
         builder.Property(x => x.Description)
                .HasColumnName("description");
