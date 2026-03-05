@@ -5,7 +5,7 @@ using MiniWebApp.Core.Security;
 using MiniWebApp.ServiceDefaults;
 using MiniWebApp.UserApi;
 using MiniWebApp.UserApi.Domain;
-using MiniWebApp.UserApi.HostedService;
+using MiniWebApp.UserApi.Infrastructure.HostedService;
 using MiniWebApp.UserApi.Infrastructure.Serialization;
 using MiniWebApp.UserApi.Services.Permissions;
 

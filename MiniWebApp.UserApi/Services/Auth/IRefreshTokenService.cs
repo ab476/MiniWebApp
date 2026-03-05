@@ -1,4 +1,4 @@
-﻿namespace MiniWebApp.UserApi.Services.RefreshToken;
+﻿namespace MiniWebApp.UserApi.Services.Auth;
 
 public interface IRefreshTokenService
 {

@@ -1,4 +1,4 @@
-﻿namespace MiniWebApp.UserApi.HostedService;
+﻿namespace MiniWebApp.UserApi.Infrastructure.HostedService;
 
 public interface IPermissionSeeder
 {

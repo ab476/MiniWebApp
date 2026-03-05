@@ -2,7 +2,7 @@
 using System.Text;
 using MiniWebApp.UserApi.Domain;
 
-namespace MiniWebApp.UserApi.Services.RefreshToken;
+namespace MiniWebApp.UserApi.Services.Auth;
 
 public class RefreshTokenService(UserDbContext context) : IRefreshTokenService
 {
@@ -16,8 +16,6 @@ public class RefreshTokenService(UserDbContext context) : IRefreshTokenService
     {
         var rawRefreshToken = GenerateSecureRandomString();
         var hashedToken = ComputeHash(rawRefreshToken);
-
-
 
         var refreshToken = new TRefreshToken
         {

@@ -2,7 +2,7 @@
 using MiniWebApp.UserApi.Domain;
 using MiniWebApp.UserApi.Options;
 
-namespace MiniWebApp.UserApi.HostedService;
+namespace MiniWebApp.UserApi.Infrastructure.HostedService;
 
 public class TenantSeeder(
     UserDbContext dbContext,

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using MiniWebApp.UserApi.Domain;
 using MiniWebApp.UserApi.Options;
 
-namespace MiniWebApp.UserApi.HostedService;
+namespace MiniWebApp.UserApi.Infrastructure.HostedService;
 
 public class UserSeeder(
     UserDbContext dbContext,

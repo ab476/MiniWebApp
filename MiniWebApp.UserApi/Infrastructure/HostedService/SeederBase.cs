@@ -1,6 +1,6 @@
 ﻿using MiniWebApp.UserApi.Domain;
 
-namespace MiniWebApp.UserApi.HostedService;
+namespace MiniWebApp.UserApi.Infrastructure.HostedService;
 
 public class SeederBase(UserDbContext dbContext)
 {
