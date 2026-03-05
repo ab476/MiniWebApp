@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MiniWebApp.Core.Models;
+﻿namespace MiniWebApp.Core.Models;
 
 public record PagedResponse<T>
 {

@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MiniWebApp.Core.Common;
-using MiniWebApp.Core.Models;
-using MiniWebApp.UserApi.Contracts.Roles;
+﻿using MiniWebApp.UserApi.Contracts.Roles;
 using MiniWebApp.UserApi.Domain;
 using MiniWebApp.UserApi.Models.Permissions;
 
@@ -15,16 +12,20 @@ public sealed class PermissionQueries(
         GetPermissionRequest request,
         CancellationToken ct)
     {
+        if (!request.Id.HasValue && string.IsNullOrWhiteSpace(request.Code))
+        {
+            return ("Provide an ID or Code to search.", StatusCodes.Status400BadRequest);
+        }
+
         var query = db.TPermissions.AsNoTracking();
 
-        // Dynamically filter based on what was provided
         if (request.Id.HasValue && request.Id != Guid.Empty)
         {
             query = query.Where(x => x.Id == request.Id);
         }
-        else if (!string.IsNullOrWhiteSpace(request.Code))
+
+        if (!string.IsNullOrWhiteSpace(request.Code))
         {
-            // Normalize search to lowercase to match our DB constraints
             var normalizedCode = request.Code.ToLowerInvariant().Trim();
             query = query.Where(x => x.Code == normalizedCode);
         }
@@ -33,39 +34,20 @@ public sealed class PermissionQueries(
             .ProjectToResponse()
             .FirstOrDefaultAsync(ct);
 
-        if (result is null)
-        {
-            return ("Permission not found.", StatusCodes.Status404NotFound);
-        }
-
-        return (StatusCodes.Status200OK, result);
+        return result is null
+            ? ("Permission not found.", StatusCodes.Status404NotFound)
+            : (StatusCodes.Status200OK, result);
     }
 
-    public async Task<Outcome<PagedResponse<PermissionResponse>>> GetPagedAsync(
-        PagedRequest request,
-        CancellationToken ct)
+    public async Task<Outcome<PermissionResponse[]>> ListPermissions(CancellationToken ct)
     {
-        // 1. Get total count before slicing the data
-        var totalCount = await db.TPermissions.CountAsync(ct);
 
-        var (pageNumber, pageSize) = request;
-
-        // 2. Apply Skip and Take for pagination
         var items = await db.TPermissions
             .AsNoTracking()
             .OrderBy(x => x.Code)
-            .Skip((pageNumber - 1) * pageSize) // Logic: (1-1)*10 = 0; (2-1)*10 = 10
-            .Take(pageSize)
             .ProjectToResponse()
-            .ToListAsync(ct);
+            .ToArrayAsync(ct);
 
-        PagedResponse<PermissionResponse> pagedResult = new(
-            items,
-            totalCount,
-            pageNumber,
-            pageSize
-        );
-
-        return (StatusCodes.Status200OK, pagedResult);
+        return (StatusCodes.Status200OK, items);
     }
 }

@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MiniWebApp.UserApi.Domain;
-using MiniWebApp.UserApi.Domain.Models;
+﻿using MiniWebApp.UserApi.Domain;
 
 namespace MiniWebApp.UserApi.HostedService;
 

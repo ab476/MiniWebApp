@@ -18,6 +18,8 @@ public abstract class IntegrationTestBase
         JwtTokenGenerator = new JwtTokenGenerator(_options);
         Factory = new UserApiFactory(fixture.ConnectionString, _options);
     }
+    protected static CancellationToken CancellationToken => TestContext.Current.CancellationToken;
+    protected static CancellationToken ct => CancellationToken;
 
     // ----------------------------
     // Client Creation (Centralized)

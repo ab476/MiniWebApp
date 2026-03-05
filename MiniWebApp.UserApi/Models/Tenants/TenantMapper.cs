@@ -1,6 +1,4 @@
-﻿using MiniWebApp.UserApi.Domain.Models;
-using MiniWebApp.UserApi.Models.Tenants;
-using Riok.Mapperly.Abstractions;
+﻿using Riok.Mapperly.Abstractions;
 
 namespace MiniWebApp.UserApi.Contracts.Tenants;
 

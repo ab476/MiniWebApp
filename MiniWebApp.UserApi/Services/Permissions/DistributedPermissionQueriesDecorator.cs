@@ -1,7 +1,5 @@
 ﻿using MemoryPack;
 using Microsoft.Extensions.Caching.Distributed;
-using MiniWebApp.Core.Common;
-using MiniWebApp.Core.Models;
 using MiniWebApp.UserApi.Models.Permissions;
 using System.Text;
 
@@ -53,19 +51,18 @@ public class DistributedPermissionQueriesDecorator(
         return result;
     }
 
-    public async Task<Outcome<PagedResponse<PermissionResponse>>> GetPagedAsync(PagedRequest request, CancellationToken ct)
+    public async Task<Outcome<PermissionResponse[]>> ListPermissions(CancellationToken ct)
     {
-        var (page, size) = request;
-        string key = $"{CachePrefix}:list:p{page}:s{size}";
+        string key = $"{CachePrefix}:list";
 
         byte[]? cachedBytes = await cache.GetAsync(key, ct);
         if (cachedBytes is not null)
         {
-            var cachedPagedResponse = MemoryPackSerializer.Deserialize<PagedResponse<PermissionResponse>>(cachedBytes);
+            var cachedPagedResponse = MemoryPackSerializer.Deserialize<PermissionResponse[]>(cachedBytes);
             return (StatusCodes.Status200OK, cachedPagedResponse!);
         }
 
-        var result = await inner.GetPagedAsync(request, ct);
+        var result = await inner.ListPermissions(ct);
 
         if (result.IsSuccess)
         {

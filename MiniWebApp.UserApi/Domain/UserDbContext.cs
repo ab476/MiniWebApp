@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MiniWebApp.UserApi.Domain.Models;
-
-namespace MiniWebApp.UserApi.Domain;
+﻿namespace MiniWebApp.UserApi.Domain;
 
 public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(options)
 {

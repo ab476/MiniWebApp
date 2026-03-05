@@ -1,5 +1,8 @@
 <Solution>
   <Folder Name="/Aspire/">
+    <Project Path="AppHost.Redis/AppHost.Redis.csproj" Id="495409da-2258-4cd1-a586-e751d1e09ea8" />
+    <Project Path="Aspire.Elasticsearch/Aspire.Elasticsearch.AppHost/Aspire.Elasticsearch.csproj" Id="59de8612-618d-476e-9f7c-cdde416143c4" />
+    <Project Path="Aspire.Elasticsearch/Aspire.Elasticsearch.ServiceDefaults/Aspire.Elasticsearch.ServiceDefaults.csproj" />
     <Project Path="MiniWebApp/MiniWebApp.AppHost/MiniWebApp.AppHost.csproj" Id="aed398a6-ceb4-43f1-bb13-f4f9fcffb222" />
     <Project Path="MiniWebApp/MiniWebApp.ServiceDefaults/MiniWebApp.ServiceDefaults.csproj" />
   </Folder>

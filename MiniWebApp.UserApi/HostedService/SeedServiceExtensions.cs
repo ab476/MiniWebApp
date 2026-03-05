@@ -7,8 +7,7 @@ public static class SeedServiceExtensions
 {
     extension(WebApplicationBuilder builder)
     {
-        public WebApplicationBuilder AddDatabaseSeeding<TUser>()
-        where TUser : class
+        public WebApplicationBuilder AddDatabaseSeeding<TUser>() where TUser : class
         {
             // 1. Add the JSON file
             builder.Configuration.AddJsonFile("appsettings.seeddata.json", optional: true, reloadOnChange: true);

@@ -1,5 +1,4 @@
-﻿using MiniWebApp.Core.Common;
-using MiniWebApp.UserApi.Models.Roles;
+﻿using MiniWebApp.UserApi.Models.Roles;
 
 namespace MiniWebApp.UserApi.Services;
 

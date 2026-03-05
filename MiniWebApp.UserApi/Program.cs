@@ -1,18 +1,13 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using MiniWebApp.Core.Exceptions;
 using MiniWebApp.Core.Security;
 using MiniWebApp.ServiceDefaults;
 using MiniWebApp.UserApi;
 using MiniWebApp.UserApi.Domain;
-using MiniWebApp.UserApi.Domain.Models;
 using MiniWebApp.UserApi.HostedService;
-using MiniWebApp.UserApi.Options;
-using MiniWebApp.UserApi.Services;
-using MiniWebApp.UserApi.Services.Tenants;
+using MiniWebApp.UserApi.Infrastructure.Serialization;
+using MiniWebApp.UserApi.Services.Permissions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,21 +18,24 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddApplicationAuthorization();
 
-builder.AddDatabaseSeeding<TUser>();
+builder
+    .AddDatabaseSeeding<TUser>()
+    .AddSecurity()
+    .AddCustomSerialization();
 
 
 
-builder.Services.AddScoped<TenantService>().AddScoped<RoleService>();
+builder.Services.AddScoped<TenantService>().AddScoped<RoleService>()
+    .AddScoped<IPermissionQueries, PermissionQueries>();
 builder.AddNpgsqlDbContext<UserDbContext>("userdb");
 builder.Services
     .AddValidatorsFromAssemblyContaining<Program>();
 
-builder.Services.Configure<JwtOptions>(
-    builder.Configuration.GetSection(JwtOptions.SectionName));
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(); // configuration happens via IConfigureOptions
-builder.Services.Configure<ConfigureJwtBearerOptions>(builder.Configuration);
+
 builder.Services.AddAuthorization();
 var app = builder.Build();
 

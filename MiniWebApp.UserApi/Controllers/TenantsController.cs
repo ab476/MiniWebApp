@@ -1,15 +1,7 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using MiniWebApp.Core.Auth;
-using MiniWebApp.Core.Common;
-using MiniWebApp.Core.Controllers;
-using MiniWebApp.UserApi.Models.Tenants;
-using MiniWebApp.UserApi.Services.Tenants;
-
 namespace MiniWebApp.UserApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/tenants")]
 public class TenantsController(TenantService tenantService) : ApiControllerBase
 {
     [HttpGet("{id:guid}")]

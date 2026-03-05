@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MiniWebApp.AppHost.Options;
+﻿namespace MiniWebApp.AppHost.Options;
 
 public sealed class AppHostOptions
 {

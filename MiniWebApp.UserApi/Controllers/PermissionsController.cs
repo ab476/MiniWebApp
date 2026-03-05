@@ -1,12 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using MiniWebApp.Core.Auth;
-using MiniWebApp.Core.Common;
-using MiniWebApp.Core.Controllers;
-using MiniWebApp.Core.Models;
-using MiniWebApp.UserApi.Models.Permissions;
+﻿using MiniWebApp.UserApi.Models.Permissions;
 using MiniWebApp.UserApi.Services.Permissions;
-using System.Reflection.Metadata;
 
 namespace MiniWebApp.UserApi.Controllers;
 
@@ -15,9 +8,9 @@ namespace MiniWebApp.UserApi.Controllers;
 public class PermissionsController(IPermissionQueries queries) : ApiControllerBase
 {
     [HttpGet]
-    //[Authorize(Policy = AppPermissions.Permissions.Read)]
-    public async Task<Outcome<PagedResponse<PermissionResponse>>> GetPaged([FromQuery] PagedRequest request, CancellationToken ct)
-        => await queries.GetPagedAsync(request, ct);
+    [Authorize(Policy = AppPermissions.Permissions.Read)]
+    public async Task<Outcome<PermissionResponse[]>> ListPermissions(CancellationToken ct)
+        => await queries.ListPermissions(ct);
 
     [HttpGet("{idOrCode}")]
     [Authorize(Policy = AppPermissions.Permissions.Read)]
@@ -31,5 +24,4 @@ public class PermissionsController(IPermissionQueries queries) : ApiControllerBa
 
         return await queries.GetPermissionAsync(request, ct);
     }
-
 }

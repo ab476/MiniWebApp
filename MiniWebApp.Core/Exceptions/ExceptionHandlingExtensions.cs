@@ -8,27 +8,31 @@ namespace MiniWebApp.Core.Exceptions;
 
 public static class ExceptionHandlingExtensions
 {
-    public static void UseExceptionHandlingMiddleware(this IApplicationBuilder app)
+    extension(IApplicationBuilder app)
     {
-        app.UseExceptionHandler(errorApp =>
+        public void UseExceptionHandlingMiddleware()
         {
-            errorApp.Run(async context =>
+            app.UseExceptionHandler(static errorApp =>
             {
-                var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
-                Outcome<string> problem = exception switch
-                {
-                    AppException applicationEx => (applicationEx.Message, applicationEx.StatusCode),
-                    _ => new(
-                        "An unexpected error occurred.",
-                        StatusCodes.Status500InternalServerError
-                    )
-                };
-            
-
-                context.Response.StatusCode = problem.StatusCode ?? StatusCodes.Status500InternalServerError;
-                await context.Response.WriteAsJsonAsync(problem, ApiJsonContext.Default.OutcomeString);
+                errorApp.Run(ExceptionHandler);
             });
-        });
+        }
+    }
+    static async Task ExceptionHandler(HttpContext context)
+    {
+        var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+        Outcome<string> problem = exception switch
+        {
+            AppException applicationEx => (applicationEx.Message, applicationEx.StatusCode),
+            _ => new(
+                "An unexpected error occurred.",
+                StatusCodes.Status500InternalServerError
+            )
+        };
+
+
+        context.Response.StatusCode = problem.StatusCode ?? StatusCodes.Status500InternalServerError;
+        await context.Response.WriteAsJsonAsync(problem, ApiJsonContext.Default.OutcomeString);
     }
 }
 

@@ -1,6 +1,4 @@
-﻿using MiniWebApp.Core.Auth;
-
-namespace MiniWebApp.UserApi;
+﻿namespace MiniWebApp.UserApi;
 
 public static class AuthorizationExtensions
 {

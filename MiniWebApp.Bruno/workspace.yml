@@ -1,0 +1,12 @@
+opencollection: 1.0.0
+info:
+  name: "MiniWebApp.Bruno"
+  type: workspace
+
+collections:
+  - name: "UserApi.Bruno"
+    path: "collections/UserApi.Bruno"
+
+specs:
+
+docs: ''

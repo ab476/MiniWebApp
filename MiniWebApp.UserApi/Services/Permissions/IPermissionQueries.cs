@@ -1,6 +1,4 @@
-﻿using MiniWebApp.Core.Common;
-using MiniWebApp.Core.Models;
-using MiniWebApp.UserApi.Models.Permissions;
+﻿using MiniWebApp.UserApi.Models.Permissions;
 
 namespace MiniWebApp.UserApi.Services.Permissions;
 
@@ -11,8 +9,7 @@ public interface IPermissionQueries
         CancellationToken ct
     );
 
-    Task<Outcome<PagedResponse<PermissionResponse>>> GetPagedAsync(
-        PagedRequest request,
+    Task<Outcome<PermissionResponse[]>> ListPermissions(
         CancellationToken ct
     );
 }

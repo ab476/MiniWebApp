@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MiniWebApp.UserApi.Domain.Models;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MiniWebApp.UserApi.Domain.Configurations;
 
@@ -22,7 +20,8 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<TRefreshToken>
 
         builder.Property(x => x.TokenHash)
                .HasColumnName("token_hash")
-               .HasMaxLength(512)
+               .HasMaxLength(32)
+               .IsFixedLength()
                .IsRequired();
 
         builder.Property(x => x.ExpiresAt)
@@ -59,6 +58,11 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<TRefreshToken>
 
         builder.HasIndex(x => x.UserId)
                .HasDatabaseName("ix_refresh_tokens_user_id");
+
+        // 🔹 Index for TokenHash lookup
+        builder.HasIndex(x => x.TokenHash)
+               .IsUnique() // Recommended if you want to ensure a token hash isn't reused
+               .HasDatabaseName("ix_refresh_tokens_token_hash");
 
         builder.HasIndex(x => x.ExpiresAt)
                .HasDatabaseName("ix_refresh_tokens_expires_at");

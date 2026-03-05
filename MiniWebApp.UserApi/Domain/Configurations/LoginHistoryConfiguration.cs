@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MiniWebApp.UserApi.Domain.Models;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MiniWebApp.UserApi.Domain.Configurations;
 

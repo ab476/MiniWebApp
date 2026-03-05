@@ -1,15 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using MiniWebApp.Core.Auth;
-using MiniWebApp.Core.Common;
-using MiniWebApp.Core.Controllers;
+﻿using MiniWebApp.Core.Security;
 using MiniWebApp.UserApi.Models.Roles;
-using MiniWebApp.UserApi.Services;
 
 namespace MiniWebApp.UserApi.Controllers;
 
 [Route("api/roles")]
-public class RolesController(RoleService roleService) : ApiControllerBase
+public class RolesController(RoleService roleService, IUserContext _user) : ApiControllerBase
 {
     [HttpGet("{id:guid}")]
     [Authorize(Policy = AppPermissions.Roles.Read)]
@@ -40,6 +35,11 @@ public class RolesController(RoleService roleService) : ApiControllerBase
         [FromBody] CreateRoleRequest request,
         CancellationToken ct = default)
     {
+        if (request.TenantId == Guid.Empty)
+        {
+            request = request with { TenantId = _user.TenantId };
+        }
+       
         await ValidateAsync(request, ct);
         var outcome = await roleService.CreateAsync(request, ct);
         if (outcome.IsSuccess)

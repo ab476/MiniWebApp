@@ -1,0 +1,7 @@
+info:
+  name: Permissions
+  type: folder
+  seq: 1
+
+request:
+  auth: inherit

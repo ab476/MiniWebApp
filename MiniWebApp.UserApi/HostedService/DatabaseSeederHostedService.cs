@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using MiniWebApp.UserApi.Domain;
 using MiniWebApp.UserApi.Options;
 

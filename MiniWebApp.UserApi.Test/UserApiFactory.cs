@@ -12,6 +12,7 @@ public class UserApiFactory(string connectionString, IOptions<JwtOptions> jwtSet
     public  readonly IOptions<JwtOptions> JwtSettings = jwtSettings;
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.UseSetting("ConnectionStrings:userdb", _connectionString);
         builder.ConfigureAppConfiguration((context, config) =>
         {
             var jwtSettings = new Dictionary<string, string?>
@@ -25,7 +26,7 @@ public class UserApiFactory(string connectionString, IOptions<JwtOptions> jwtSet
 
             config.AddInMemoryCollection(jwtSettings);
         });
-
+        builder.UseSetting("ConnectionStrings:userdb", _connectionString);
         builder.UseEnvironment("Testing");
     }
 }
@@ -37,7 +38,7 @@ internal class TestJwtSettings : IOptions<JwtOptions>
     {
         Issuer = "MiniWebApp",
         Audience = "MiniWebAppUsers",
-        Key = "qZrJk0rJkqYl9h0rY2fQmGq7l6lHc3gk3xv8bV2sYqTt6yP0nEwW5fKc4uRz8mHq1yLx2pQv7nM5aKc9tYgJw==",
+        Key = "14f8176424f00751933b45b288038536598ace738ac1ba2a4f97717a1f21990522d5a031a9f9473ee80ddbf3d22be42d088ad4fbf50b7a58709c114f7371f9f1",
         ExpiryMinutes = 60
     };
     public JwtOptions Value

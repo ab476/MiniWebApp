@@ -1,5 +1,6 @@
 ﻿using global::MiniWebApp.Core.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using MiniWebApp.Core.Auth;
 using System.Net.Http.Headers;
 
 namespace MiniWebApp.UserApi.Test;
@@ -16,8 +17,8 @@ public sealed class AuthenticatedClientBuilder(
     private string _email = string.Empty;
     private string _userName = string.Empty;
 
-    private IEnumerable<string> _permissions = [];
-    private IEnumerable<string> _roles = [];
+    private List<string> _permissions = [];
+    private List<string> _roles = [];
 
     public AuthenticatedClientBuilder WithUser(Guid userId)
     {
@@ -33,16 +34,35 @@ public sealed class AuthenticatedClientBuilder(
 
     public AuthenticatedClientBuilder WithPermissions(params string[] permissions)
     {
-        _permissions = permissions;
+        _permissions.AddRange(permissions);
         return this;
     }
 
     public AuthenticatedClientBuilder WithRoles(params string[] roles)
     {
-        _roles = roles;
+        _roles.AddRange(roles);
         return this;
     }
+    // Fluent Accessors for specific modules
+    public TenantPermissionBuilder Tenants => new(this);
+    public RolePermissionBuilder Roles => new(this);
+    public UserPermissionBuilder Users => new(this);
+    public SystemPermissionsBuilder SystemPermissions => new(this); 
 
+    // Internal helper to add a single permission and return the main builder
+    internal AuthenticatedClientBuilder AddPermission(string permission)
+    {
+        _permissions.Add(permission);
+        return this;
+    }
+    public AuthenticatedClientBuilder AsSuperAdmin()
+    {
+        _permissions.Clear();
+        _permissions.AddRange(AppPermissions.All);
+        _roles.Clear();
+        _roles.Add(AppRoles.SuperAdmin);
+        return this;
+    }
     public HttpClient Build()
     {
         var client = _factory.CreateClient();
@@ -65,6 +85,34 @@ public sealed class AuthenticatedClientBuilder(
             );
 
         return client;
+    }
+    
+
+    public sealed class TenantPermissionBuilder(AuthenticatedClientBuilder parent)
+    {
+        public AuthenticatedClientBuilder CanRead() => parent.AddPermission(AppPermissions.Tenants.Read);
+        public AuthenticatedClientBuilder CanWrite() => parent.AddPermission(AppPermissions.Tenants.Write);
+        public AuthenticatedClientBuilder CanManage() => parent.AddPermission(AppPermissions.Tenants.Manage);
+        public AuthenticatedClientBuilder FullControl() => parent.WithPermissions([.. AppPermissions.Tenants.All]);
+    }
+    public sealed class SystemPermissionsBuilder(AuthenticatedClientBuilder parent)
+    {
+        public AuthenticatedClientBuilder CanRead() => parent.AddPermission(AppPermissions.Permissions.Read);
+    }
+    public sealed class RolePermissionBuilder(AuthenticatedClientBuilder parent)
+    {
+        public AuthenticatedClientBuilder CanRead() => parent.AddPermission(AppPermissions.Roles.Read);
+        public AuthenticatedClientBuilder CanWrite() => parent.AddPermission(AppPermissions.Roles.Write);
+        public AuthenticatedClientBuilder CanManage() => parent.AddPermission(AppPermissions.Roles.Manage);
+        public AuthenticatedClientBuilder FullControl() => parent.WithPermissions([.. AppPermissions.Roles.All]);
+    }
+
+    public sealed class UserPermissionBuilder(AuthenticatedClientBuilder parent)
+    {
+        public AuthenticatedClientBuilder CanRead() => parent.AddPermission(AppPermissions.Users.Read);
+        public AuthenticatedClientBuilder CanWrite() => parent.AddPermission(AppPermissions.Users.Write);
+        public AuthenticatedClientBuilder CanManage() => parent.AddPermission(AppPermissions.Users.Manage);
+        public AuthenticatedClientBuilder FullControl() => parent.WithPermissions([.. AppPermissions.Users.All]);
     }
 }
 
