@@ -7,7 +7,7 @@ namespace MiniWebApp.UserApi.Infrastructure.HostedService;
 
 public class UserSeeder(
     UserDbContext dbContext,
-    IPasswordHasher<TUser> passwordHasher,
+    IPasswordHasher<User> passwordHasher,
     IOptions<SeedDataOptions> options) : SeederBase(dbContext), IUserSeeder
 {
     private readonly SeedDataOptions _seedData = options.Value;
@@ -20,11 +20,11 @@ public class UserSeeder(
         var defaultTenantId = await GetDefaultTenantIdAsync(ct);
 
         // 2. Map Roles to IDs
-        var roleMap = await _dbContext.Set<TRole>()
+        var roleMap = await _dbContext.Set<Role>()
             .ToDictionaryAsync(r => r.Name, r => r.Id, ct);
 
         // 3. Get existing users
-        var existingEmails = await _dbContext.Set<TUser>()
+        var existingEmails = await _dbContext.Set<User>()
             .Select(u => u.Email)
             .ToHashSetAsync(ct);
 
@@ -32,7 +32,7 @@ public class UserSeeder(
         {
             if (existingEmails.Contains(userSeed.Email)) continue;
 
-            var newUser = new TUser
+            var newUser = new User
             {
                 Id = Guid.NewGuid(),
                 Email = userSeed.Email,
@@ -49,17 +49,17 @@ public class UserSeeder(
             // 4. Assign Roles
             var userRoles = userSeed.Roles
                 .Where(roleMap.ContainsKey)
-                .Select(roleName => new TUserRole
+                .Select(roleName => new UserRole
                 {
                     UserId = newUser.Id,
                     RoleId = roleMap[roleName]
                 })
                 .ToList();
 
-            await _dbContext.Set<TUser>().AddAsync(newUser, ct);
+            await _dbContext.Set<User>().AddAsync(newUser, ct);
             if (userRoles.Count != 0)
             {
-                await _dbContext.Set<TUserRole>().AddRangeAsync(userRoles, ct);
+                await _dbContext.Set<UserRole>().AddRangeAsync(userRoles, ct);
             }
         }
 

@@ -1,6 +1,6 @@
 ﻿namespace MiniWebApp.UserApi.Domain.Models;
 
-public class TRole
+public class Role
 {
     public Guid Id { get; set; }
 
@@ -13,7 +13,7 @@ public class TRole
 
     public DateTime CreatedAt { get; set; }
 
-    public TTenant Tenant { get; set; } = default!;
-    public ICollection<TRolePermission> RolePermissions { get; set; } = [];
-    public ICollection<TUserRole> UserRoles { get; set; } = [];
+    public Tenant Tenant { get; set; } = default!;
+    public ICollection<RolePermission> RolePermissions { get; set; } = [];
+    public ICollection<UserRole> UserRoles { get; set; } = [];
 }

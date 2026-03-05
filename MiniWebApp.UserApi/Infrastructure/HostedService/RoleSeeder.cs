@@ -14,18 +14,18 @@ public class RoleSeeder(
     {
         if (_seedData.Roles.Count == 0) return;
 
-        var existingRoleNames = await _dbContext.Set<TRole>()
+        var existingRoleNames = await _dbContext.Set<Role>()
             .Select(r => r.Name)
             .ToHashSetAsync(StringComparer.InvariantCultureIgnoreCase, ct);
 
-        var permissionMap = await _dbContext.Set<TPermission>()
+        var permissionMap = await _dbContext.Set<Permission>()
             .ToDictionaryAsync(p => p.Code, p => p.Id, StringComparer.InvariantCultureIgnoreCase, ct);
         var tennantId = await GetDefaultTenantIdAsync(ct);
         foreach (var roleSeed in _seedData.Roles)
         {
             if (existingRoleNames.Contains(roleSeed.Name)) continue;
 
-            var newRole = new TRole
+            var newRole = new Role
             {
                 Id = Guid.NewGuid(),
                 TenantId = tennantId,
@@ -42,18 +42,18 @@ public class RoleSeeder(
                     .Select(pCode => permissionMap[pCode]);
 
             var rolePermissions = permissionIdsToAssign
-                .Select(pId => new TRolePermission
+                .Select(pId => new RolePermission
                 {
                     RoleId = newRole.Id,
                     PermissionId = pId
                 })
                 .ToList();
 
-            await _dbContext.Set<TRole>().AddAsync(newRole, ct);
+            await _dbContext.Set<Role>().AddAsync(newRole, ct);
 
             if (rolePermissions.Count != 0)
             {
-                await _dbContext.Set<TRolePermission>().AddRangeAsync(rolePermissions, ct);
+                await _dbContext.Set<RolePermission>().AddRangeAsync(rolePermissions, ct);
             }
         }
 

@@ -2,9 +2,9 @@
 
 namespace MiniWebApp.UserApi.Domain.Configurations;
 
-public class PermissionConfiguration : IEntityTypeConfiguration<TPermission>
+public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
 {
-    public void Configure(EntityTypeBuilder<TPermission> builder)
+    public void Configure(EntityTypeBuilder<Permission> builder)
     {
         builder.ToTable("permissions", "public");
 

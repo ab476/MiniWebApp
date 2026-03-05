@@ -1,6 +1,6 @@
 ﻿namespace MiniWebApp.UserApi.Domain.Models;
 
-public class TTenant
+public class Tenant
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = default!;

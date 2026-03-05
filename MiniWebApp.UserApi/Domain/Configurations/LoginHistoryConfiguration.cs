@@ -2,9 +2,9 @@
 
 namespace MiniWebApp.UserApi.Domain.Configurations;
 
-public class LoginHistoryConfiguration : IEntityTypeConfiguration<TLoginHistory>
+public class LoginHistoryConfiguration : IEntityTypeConfiguration<LoginHistory>
 {
-    public void Configure(EntityTypeBuilder<TLoginHistory> builder)
+    public void Configure(EntityTypeBuilder<LoginHistory> builder)
     {
         builder.ToTable("login_history", "public");
 
@@ -28,7 +28,7 @@ public class LoginHistoryConfiguration : IEntityTypeConfiguration<TLoginHistory>
 
         builder.Property(x => x.IpAddress)
                .HasColumnName("ip_address")
-               .HasMaxLength(100);
+               .HasConversion<string>();
 
         builder.Property(x => x.DeviceInfo)
                .HasColumnName("device_info");

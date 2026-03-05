@@ -2,9 +2,9 @@
 
 namespace MiniWebApp.UserApi.Domain.Configurations;
 
-public class AuditLogConfiguration : IEntityTypeConfiguration<TAuditLog>
+public class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
 {
-    public void Configure(EntityTypeBuilder<TAuditLog> builder)
+    public void Configure(EntityTypeBuilder<AuditLog> builder)
     {
         builder.ToTable("audit_logs", "public");
 

@@ -10,7 +10,7 @@ public class PermissionSeeder(UserDbContext dbContext) : IPermissionSeeder
         var permissionData = GetPermissionsToSeed();
 
         // 2. Fetch existing permissions to avoid duplicates
-        var existingCodesSet = await dbContext.TPermissions
+        var existingCodesSet = await dbContext.Permissions
             .Select(p => p.Code)
             .ToHashSetAsync(ct);
 
@@ -20,14 +20,14 @@ public class PermissionSeeder(UserDbContext dbContext) : IPermissionSeeder
 
         if (newPermissions.Count != 0)
         {
-            await dbContext.TPermissions.AddRangeAsync(newPermissions, ct);
+            await dbContext.Permissions.AddRangeAsync(newPermissions, ct);
             await dbContext.SaveChangesAsync(ct);
         }
     }
     
-    private static List<TPermission> GetPermissionsToSeed()
+    private static List<Permission> GetPermissionsToSeed()
     {
-        var list = new List<TPermission>();
+        var list = new List<Permission>();
 
         list.AddRange(BuildPermissions(AppPermissions.Tenants.All, nameof(AppPermissions.Tenants)));
         list.AddRange(BuildPermissions(AppPermissions.Roles.All, nameof(AppPermissions.Roles)));
@@ -37,9 +37,9 @@ public class PermissionSeeder(UserDbContext dbContext) : IPermissionSeeder
         return list;
     }
 
-    private static IEnumerable<TPermission> BuildPermissions(IEnumerable<string> codes, string category)
+    private static IEnumerable<Permission> BuildPermissions(IEnumerable<string> codes, string category)
     {
-        return codes.Select(code => new TPermission
+        return codes.Select(code => new Permission
         {
             Id = Guid.NewGuid(),
             Code = code,

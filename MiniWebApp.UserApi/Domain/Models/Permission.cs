@@ -1,6 +1,6 @@
 ﻿namespace MiniWebApp.UserApi.Domain.Models;
 
-public class TPermission
+public class Permission
 {
     public Guid Id { get; set; }
 
@@ -9,5 +9,5 @@ public class TPermission
     public string? Description { get; set; }
 
     public string? Category { get; set; }
-    public ICollection<TRolePermission> RolePermissions { get; set; } = [];
+    public ICollection<RolePermission> RolePermissions { get; set; } = [];
 }

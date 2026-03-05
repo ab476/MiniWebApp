@@ -1,6 +1,6 @@
 ﻿namespace MiniWebApp.UserApi.Domain.Models;
 
-public class TRefreshToken
+public class RefreshToken
 {
     public Guid Id { get; set; }
 
@@ -17,6 +17,6 @@ public class TRefreshToken
 
     public string? CreatedByIp { get; set; }
 
-    public TUser User { get; set; } = default!;
-    public TRefreshToken? ReplacedByToken { get; set; }
+    public User User { get; set; } = default!;
+    public RefreshToken? ReplacedByToken { get; set; }
 }

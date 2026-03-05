@@ -2,9 +2,9 @@
 
 namespace MiniWebApp.UserApi.Domain.Configurations;
 
-public class OutboxMessageConfiguration : IEntityTypeConfiguration<TOutboxMessage>
+public class OutboxMessageConfiguration : IEntityTypeConfiguration<OutboxMessage>
 {
-    public void Configure(EntityTypeBuilder<TOutboxMessage> builder)
+    public void Configure(EntityTypeBuilder<OutboxMessage> builder)
     {
         builder.ToTable("outbox_messages", "public");
 

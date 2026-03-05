@@ -2,9 +2,9 @@
 
 namespace MiniWebApp.UserApi.Domain.Configurations;
 
-public class TenantConfiguration : IEntityTypeConfiguration<TTenant>
+public class TenantConfiguration : IEntityTypeConfiguration<Tenant>
 {
-    public void Configure(EntityTypeBuilder<TTenant> builder)
+    public void Configure(EntityTypeBuilder<Tenant> builder)
     {
         builder.ToTable("tenants");
 

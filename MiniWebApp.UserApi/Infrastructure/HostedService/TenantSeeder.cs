@@ -14,7 +14,7 @@ public class TenantSeeder(
     {
         if (_seedData.Tenants.Count == 0) return;
 
-        var existingNames = await _dbContext.TTenants
+        var existingNames = await _dbContext.Tenants
             .Select(t => t.Name)
             .ToHashSetAsync(ct);
 
@@ -25,12 +25,12 @@ public class TenantSeeder(
 
         if (newTenants.Count != 0)
         {
-            await _dbContext.TTenants.AddRangeAsync(newTenants, ct);
+            await _dbContext.Tenants.AddRangeAsync(newTenants, ct);
             await _dbContext.SaveChangesAsync(ct);
         }
     }
 
-    private static TTenant MapToEntity(TenantSeed seed) => new()
+    private static Tenant MapToEntity(TenantSeed seed) => new()
     {
         Id = Guid.NewGuid(),
         Name = seed.Name,

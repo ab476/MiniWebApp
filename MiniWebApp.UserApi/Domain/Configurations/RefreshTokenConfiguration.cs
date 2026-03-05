@@ -2,9 +2,9 @@
 
 namespace MiniWebApp.UserApi.Domain.Configurations;
 
-public class RefreshTokenConfiguration : IEntityTypeConfiguration<TRefreshToken>
+public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
 {
-    public void Configure(EntityTypeBuilder<TRefreshToken> builder)
+    public void Configure(EntityTypeBuilder<RefreshToken> builder)
     {
         builder.ToTable("refresh_tokens", "public");
 

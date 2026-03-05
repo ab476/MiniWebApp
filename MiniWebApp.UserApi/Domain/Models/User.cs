@@ -1,6 +1,6 @@
 ﻿namespace MiniWebApp.UserApi.Domain.Models;
 
-public class TUser
+public class User
 {
     public Guid Id { get; set; }
     public Guid TenantId { get; set; }
@@ -41,7 +41,7 @@ public class TUser
     public Guid? UpdatedBy { get; set; }
 
     // Navigation
-    public TTenant Tenant { get; set; } = default!;
-    public ICollection<TUserRole> UserRoles { get; set; } = [];
+    public Tenant Tenant { get; set; } = default!;
+    public ICollection<UserRole> UserRoles { get; set; } = [];
 }
 public enum UserStatus { Pending = 0, Active = 1, Suspended = 2, Deleted = 3 }

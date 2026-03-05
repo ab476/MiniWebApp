@@ -13,8 +13,8 @@ public static partial class PermissionMappings
     /// Navigation collections are ignored to prevent
     /// unnecessary data expansion.
     /// </summary>
-    [MapperIgnoreSource(nameof(TPermission.RolePermissions))]
-    public static partial PermissionResponse ToResponse(this TPermission permission);
+    [MapperIgnoreSource(nameof(Permission.RolePermissions))]
+    public static partial PermissionResponse ToResponse(this Permission permission);
 
     /// <summary>
     /// Projects an <see cref="IQueryable{Permission}"/> 
@@ -22,5 +22,5 @@ public static partial class PermissionMappings
     /// expression mapping (EF Core optimized).
     /// </summary>
     public static partial IQueryable<PermissionResponse> ProjectToResponse(
-        this IQueryable<TPermission> query);
+        this IQueryable<Permission> query);
 }

@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MiniWebApp.UserApi.Domain.Configurations;
 
-public class UserConfiguration : IEntityTypeConfiguration<TUser>
+public class UserConfiguration : IEntityTypeConfiguration<User>
 {
-    public void Configure(EntityTypeBuilder<TUser> builder)
+    public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.ToTable("users", "public");
 

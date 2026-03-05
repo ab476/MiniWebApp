@@ -8,7 +8,7 @@ public class RefreshTokenService(UserDbContext context) : IRefreshTokenService
 {
     private const int TokenByteLength = 64;
     private const int ExpiryDays = 7;
-    private DbSet<TRefreshToken> RefreshTokens => context.TRefreshTokens;
+    private DbSet<RefreshToken> RefreshTokens => context.RefreshTokens;
     /// <summary>
     /// Creates a new token pair for a user after a successful initial login.
     /// </summary>
@@ -17,7 +17,7 @@ public class RefreshTokenService(UserDbContext context) : IRefreshTokenService
         var rawRefreshToken = GenerateSecureRandomString();
         var hashedToken = ComputeHash(rawRefreshToken);
 
-        var refreshToken = new TRefreshToken
+        var refreshToken = new RefreshToken
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -64,7 +64,7 @@ public class RefreshTokenService(UserDbContext context) : IRefreshTokenService
             var newRawRefreshToken = GenerateSecureRandomString();
             var newHashedToken = ComputeHash(newRawRefreshToken);
 
-            var newToken = new TRefreshToken
+            var newToken = new RefreshToken
             {
                 Id = Guid.NewGuid(),
                 UserId = storedToken.UserId,

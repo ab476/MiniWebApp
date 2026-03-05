@@ -2,9 +2,9 @@
 
 namespace MiniWebApp.UserApi.Domain.Configurations;
 
-public class RoleConfiguration : IEntityTypeConfiguration<TRole>
+public class RoleConfiguration : IEntityTypeConfiguration<Role>
 {
-    public void Configure(EntityTypeBuilder<TRole> builder)
+    public void Configure(EntityTypeBuilder<Role> builder)
     {
         builder.ToTable("roles", "public");
 

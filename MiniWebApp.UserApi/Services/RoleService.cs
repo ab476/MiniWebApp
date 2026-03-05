@@ -9,7 +9,7 @@ public class RoleService(UserDbContext _db) : IRoleService
 
     public async Task<Outcome<RoleResponse>> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        var role = await _db.TRoles
+        var role = await _db.Roles
             .TagWith($"{nameof(RoleService)}.{nameof(GetByIdAsync)}")
             .AsNoTracking()
             .FirstOrDefaultAsync(r => r.Id == id, ct);
@@ -28,7 +28,7 @@ public class RoleService(UserDbContext _db) : IRoleService
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, 100);
 
-        var roles = await _db.TRoles
+        var roles = await _db.Roles
             .TagWith($"{nameof(RoleService)}.{nameof(GetPagedAsync)}")
             .AsNoTracking()
             .Where(r => r.TenantId == tenantId)
@@ -45,7 +45,7 @@ public class RoleService(UserDbContext _db) : IRoleService
         CreateRoleRequest request,
         CancellationToken ct = default)
     {
-        var role = new TRole
+        var role = new Role
         {
             Id = Guid.NewGuid(),
             TenantId = request.TenantId,
@@ -55,7 +55,7 @@ public class RoleService(UserDbContext _db) : IRoleService
             CreatedAt = DateTime.UtcNow
         };
 
-        _db.TRoles.Add(role);
+        _db.Roles.Add(role);
         await _db.SaveChangesAsync(ct);
 
         return (StatusCodes.Status201Created, role.ToResponse());
@@ -66,7 +66,7 @@ public class RoleService(UserDbContext _db) : IRoleService
         UpdateRoleRequest request,
         CancellationToken ct = default)
     {
-        var rows = await _db.TRoles
+        var rows = await _db.Roles
             .TagWith($"{nameof(RoleService)}.{nameof(UpdateAsync)}")
             .Where(r => r.Id == roleId)
             .ExecuteUpdateAsync(setters => setters
@@ -81,7 +81,7 @@ public class RoleService(UserDbContext _db) : IRoleService
 
     public async Task<Outcome> DeleteAsync(Guid roleId, CancellationToken ct = default)
     {
-        var rows = await _db.TRoles
+        var rows = await _db.Roles
             .TagWith($"{nameof(RoleService)}.{nameof(DeleteAsync)}")
             .Where(r => r.Id == roleId)
             .ExecuteDeleteAsync(ct);

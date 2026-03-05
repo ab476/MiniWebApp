@@ -14,13 +14,13 @@ public class SeederBase(UserDbContext dbContext)
     protected async Task<Guid> GetDefaultTenantIdAsync(CancellationToken ct)
     {
         // Try to find a "System" or "Default" tenant first
-        var tenantId = await _dbContext.Set<TTenant>()
+        var tenantId = await _dbContext.Set<Tenant>()
             .Where(t => t.Name == "System" || t.Name == "Default")
             .Select(t => (Guid?)t.Id)
             .FirstOrDefaultAsync(ct);
 
         // Fallback: If no system tenant exists, grab the very first available tenant
-        tenantId ??= await _dbContext.Set<TTenant>()
+        tenantId ??= await _dbContext.Set<Tenant>()
             .Select(t => (Guid?)t.Id)
             .FirstOrDefaultAsync(ct);
 

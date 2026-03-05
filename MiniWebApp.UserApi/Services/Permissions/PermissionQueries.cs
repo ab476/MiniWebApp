@@ -17,7 +17,7 @@ public sealed class PermissionQueries(
             return ("Provide an ID or Code to search.", StatusCodes.Status400BadRequest);
         }
 
-        var query = db.TPermissions.AsNoTracking();
+        var query = db.Permissions.AsNoTracking();
 
         if (request.Id.HasValue && request.Id != Guid.Empty)
         {
@@ -42,7 +42,7 @@ public sealed class PermissionQueries(
     public async Task<Outcome<PermissionResponse[]>> ListPermissions(CancellationToken ct)
     {
 
-        var items = await db.TPermissions
+        var items = await db.Permissions
             .AsNoTracking()
             .OrderBy(x => x.Code)
             .ProjectToResponse()

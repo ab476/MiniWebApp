@@ -1,10 +1,12 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using MiniWebApp.Core.Exceptions;
 using MiniWebApp.Core.Security;
 using MiniWebApp.ServiceDefaults;
 using MiniWebApp.UserApi;
 using MiniWebApp.UserApi.Domain;
+using MiniWebApp.UserApi.Infrastructure;
 using MiniWebApp.UserApi.Infrastructure.HostedService;
 using MiniWebApp.UserApi.Infrastructure.Serialization;
 using MiniWebApp.UserApi.Services.Permissions;
@@ -19,11 +21,20 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddApplicationAuthorization();
 
 builder
-    .AddDatabaseSeeding<TUser>()
+    .AddDatabaseSeeding<User>()
     .AddSecurity()
     .AddCustomSerialization();
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IClientInfoProvider, ClientInfoProvider>();
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    // Clear default loopback limits for Docker/Reverse Proxy setups
+    options.KnownProxies.Clear();
+    options.KnownIPNetworks.Clear();
+});
 
 builder.Services.AddScoped<TenantService>().AddScoped<RoleService>()
     .AddScoped<IPermissionQueries, PermissionQueries>();
@@ -40,6 +51,7 @@ builder.Services.AddAuthorization();
 var app = builder.Build();
 
 app.UseExceptionHandlingMiddleware();
+app.UseForwardedHeaders();
 app.MapDefaultEndpoints();
 if (app.Environment.IsDevelopment())
 {

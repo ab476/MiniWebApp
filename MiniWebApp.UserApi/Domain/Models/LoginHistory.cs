@@ -1,6 +1,8 @@
-﻿namespace MiniWebApp.UserApi.Domain.Models;
+﻿using System.Net;
 
-public class TLoginHistory
+namespace MiniWebApp.UserApi.Domain.Models;
+
+public class LoginHistory
 {
     public Guid Id { get; set; }
 
@@ -9,12 +11,12 @@ public class TLoginHistory
 
     public DateTime LoginTime { get; set; }
 
-    public string? IpAddress { get; set; }
+    public IPAddress? IpAddress { get; set; }
     public string? DeviceInfo { get; set; }
     public string? Location { get; set; }
 
     public bool IsSuccessful { get; set; }
 
-    public TUser User { get; set; } = default!;
-    public TTenant Tenant { get; set; } = default!;
+    public User User { get; set; } = default!;
+    public Tenant Tenant { get; set; } = default!;
 }
