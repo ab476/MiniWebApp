@@ -1,6 +1,7 @@
 ﻿using MemoryPack;
 using Microsoft.Extensions.Caching.Distributed;
 using MiniWebApp.UserApi.Models.Permissions;
+using MiniWebApp.UserApi.Services.Repositories;
 using System.Text;
 
 namespace MiniWebApp.UserApi.Services.Permissions;

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MiniWebApp.UserApi.Domain;
 using MiniWebApp.UserApi.Models.Permissions;
-using MiniWebApp.UserApi.Services.Permissions;
 using MiniWebApp.UserApi.Test.Builders;
 
 namespace MiniWebApp.UserApi.Test.Services.Repositories;

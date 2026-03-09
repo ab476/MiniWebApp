@@ -2,7 +2,7 @@
 using MiniWebApp.UserApi.Domain;
 using MiniWebApp.UserApi.Models.Permissions;
 
-namespace MiniWebApp.UserApi.Services.Permissions;
+namespace MiniWebApp.UserApi.Services.Repositories;
 
 public sealed class PermissionQueries(
     UserDbContext db)

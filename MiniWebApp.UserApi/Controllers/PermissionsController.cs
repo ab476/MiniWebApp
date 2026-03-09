@@ -1,5 +1,5 @@
 ﻿using MiniWebApp.UserApi.Models.Permissions;
-using MiniWebApp.UserApi.Services.Permissions;
+using MiniWebApp.UserApi.Services.Repositories;
 
 namespace MiniWebApp.UserApi.Controllers;
 

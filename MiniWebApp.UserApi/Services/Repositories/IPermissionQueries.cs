@@ -1,6 +1,6 @@
 ﻿using MiniWebApp.UserApi.Models.Permissions;
 
-namespace MiniWebApp.UserApi.Services.Permissions;
+namespace MiniWebApp.UserApi.Services.Repositories;
 
 public interface IPermissionQueries
 {
