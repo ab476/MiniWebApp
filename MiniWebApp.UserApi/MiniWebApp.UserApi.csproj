@@ -24,4 +24,8 @@
     <ProjectReference Include="..\MiniWebApp\MiniWebApp.ServiceDefaults\MiniWebApp.ServiceDefaults.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\Tenants\" />
+  </ItemGroup>
+
 </Project>

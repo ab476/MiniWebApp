@@ -1,6 +1,6 @@
-﻿namespace MiniWebApp.UserApi.Services.Tenants;
+﻿namespace MiniWebApp.UserApi.Services.Repositories;
 
-public interface ITenantService
+public interface ITenantRepository
 {
     Task<Outcome> ActivateAsync(ActivateTenantRequest request, CancellationToken ct = default);
     Task<Outcome<TenantResponse>> CreateAsync(CreateTenantRequest request, CancellationToken ct = default);

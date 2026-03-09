@@ -3,7 +3,7 @@
 //using MiniWebApp.Core.Security;
 //using MiniWebApp.UserApi.Domain;
 //using MiniWebApp.UserApi.Domain.Models;
-//using MiniWebApp.UserApi.Services.RefreshToken;
+//using MiniWebApp.UserApi.Services;
 
 //namespace MiniWebApp.UserApi.Services.Auth;
 
@@ -11,7 +11,8 @@
 //    UserDbContext db,
 //    IJwtTokenGenerator tokenService,
 //    IRefreshTokenService refreshTokenService,
-//    IPasswordHasher<TUser> passwordHasher)
+//    IPasswordHasher<User> passwordHasher,
+//    ILoginHistoryService loginHistoryService)
 //{
 //    public async Task<Outcome<AuthResponse>> LoginAsync(LoginRequest request, CancellationToken ct = default)
 //    {
@@ -29,7 +30,7 @@
 //        bool isValid = verificationResult != PasswordVerificationResult.Failed;
 
 //        // Log history independently of success
-//        db.TLoginHistories.Add(new TLoginHistory
+//        loginHistoryService.RecordLoginAsync(new LoginHistory
 //        {
 //            UserId = user?.Id ?? Guid.Empty,
 //            TenantId = request.TenantId,

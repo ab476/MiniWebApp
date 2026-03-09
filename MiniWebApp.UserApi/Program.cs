@@ -10,6 +10,7 @@ using MiniWebApp.UserApi.Infrastructure;
 using MiniWebApp.UserApi.Infrastructure.HostedService;
 using MiniWebApp.UserApi.Infrastructure.Serialization;
 using MiniWebApp.UserApi.Services.Permissions;
+using MiniWebApp.UserApi.Services.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,7 +37,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownIPNetworks.Clear();
 });
 
-builder.Services.AddScoped<TenantService>().AddScoped<RoleService>()
+builder.Services.AddScoped<ITenantRepository, TenantRepository>().AddScoped<RoleService>()
     .AddScoped<IPermissionQueries, PermissionQueries>();
 builder.AddNpgsqlDbContext<UserDbContext>("userdb");
 builder.Services

@@ -74,7 +74,7 @@ CREATE TABLE public.users (
     last_login_at timestamp with time zone,
     created_at timestamp with time zone NOT NULL,
     created_by uuid,
-    updated_at bigint NOT NULL,
+    updated_at timestamp with time zone,
     updated_by uuid,
     CONSTRAINT pk_users PRIMARY KEY (id),
     CONSTRAINT fk_users_tenant FOREIGN KEY (tenant_id) REFERENCES tenants (id) ON DELETE RESTRICT

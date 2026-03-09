@@ -1,6 +1,4 @@
-﻿using AngleSharp.Browser;
-using Microsoft.AspNetCore.Http;
-using System.Net;
+﻿using System.Net;
 using UAParser; // Install-Package UAParser
 using MaxMind.GeoIP2;
 

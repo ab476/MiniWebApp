@@ -1,5 +1,4 @@
-﻿using BuilderGenerator;
-using MiniWebApp.UserApi.Models.Roles;
+﻿using MiniWebApp.UserApi.Models.Roles;
 
 namespace MiniWebApp.UserApi.Test.Builders;
 

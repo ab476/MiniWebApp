@@ -1,8 +1,10 @@
+using MiniWebApp.UserApi.Services.Repositories;
+
 namespace MiniWebApp.UserApi.Controllers;
 
 [ApiController]
 [Route("api/tenants")]
-public class TenantsController(TenantService tenantService) : ApiControllerBase
+public class TenantsController(ITenantRepository tenantService) : ApiControllerBase
 {
     [HttpGet("{id:guid}")]
     [Authorize(Policy = AppPermissions.Tenants.Read)]

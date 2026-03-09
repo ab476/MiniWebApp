@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MiniWebApp.UserApi.Domain.Configurations;
 
@@ -78,11 +77,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
                .HasColumnName("created_by");
 
         builder.Property(x => x.UpdatedAt)
-               .HasColumnName("updated_at")
-               // Note: If using Postgres, usually Timestamptz is preferred over Ticks
-               // but keeping your converter for consistency.
-               .HasConversion(new DateTimeToTicksConverter())
-               .IsConcurrencyToken();
+               .HasColumnName("updated_at");
 
         builder.Property(x => x.UpdatedBy)
                .HasColumnName("updated_by");

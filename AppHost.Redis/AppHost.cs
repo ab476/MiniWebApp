@@ -1,3 +1,7 @@
 var builder = DistributedApplication.CreateBuilder(args);
-builder.AddRedis("cache").WithRedisInsight();
+var cache = builder.AddRedis("cache").WithRedisInsight();
+
+builder.AddProject<Projects.Redis_ConsoleApp>("RedisConsoleApp")
+    .WithReference(cache);
+
 builder.Build().Run();
