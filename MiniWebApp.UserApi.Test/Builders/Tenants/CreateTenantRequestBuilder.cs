@@ -2,92 +2,61 @@
 
 namespace MiniWebApp.UserApi.Test.Builders.Tenants;
 
-/// <summary>
-/// Builder for CreateTenantRequest using deferred execution via Lazy fields.
-/// </summary>
-public partial class CreateTenantRequestBuilder : Builder<CreateTenantRequest, CreateTenantRequestBuilder>
+[BuilderFor(typeof(CreateTenantRequest))]
+public partial class CreateTenantRequestBuilder : IBuilder<CreateTenantRequest, CreateTenantRequestBuilder>
 {
-    private Lazy<string> _name = new(() => default!);
-    private Lazy<string?> _domain = new(() => default);
-
-    public CreateTenantRequestBuilder()
-    {
-        // Initializing with defaults to avoid immediate evaluation
-        _name = new(() => "Default Tenant");
-        _domain = new(() => null);
-    }
-
-    #region Boilerplate Methods
-
-    public override CreateTenantRequest Build()
-    {
-        return new CreateTenantRequest
-        {
-            Name = _name.Value,
-            Domain = _domain.Value
-        };
-    }
-
-    public CreateTenantRequestBuilder WithName(string value)
-    {
-        _name = new(() => value);
-        return this;
-    }
-
-    public CreateTenantRequestBuilder WithoutName()
-    {
-        _name = new(() => default!);
-        return this;
-    }
-
-    public CreateTenantRequestBuilder WithDomain(string? value)
-    {
-        _domain = new(() => value);
-        return this;
-    }
-
-    public CreateTenantRequestBuilder WithoutDomain()
-    {
-        _domain = new(() => null);
-        return this;
-    }
-
-    public CreateTenantRequestBuilder WithValuesFrom(CreateTenantRequest example)
-    {
-        _name = new(() => example.Name);
-        _domain = new(() => example.Domain);
-        return this;
-    }
-
-    #endregion
-
-    #region Custom Extensions (Object Mother Logic)
     /// <summary>
-    /// Generates a random Name using a GUID string.
+    /// Entry point for a standard, valid CreateTenantRequest.
     /// </summary>
+    public static CreateTenantRequestBuilder Default => new CreateTenantRequestBuilder().WithDefaults();
+
+    /// <summary>
+    /// Sets up a valid request to prevent validation failures in happy-path tests.
+    /// </summary>
+    public CreateTenantRequestBuilder WithDefaults()
+    {
+        return WithRandomName()
+            .WithRandomDomain();
+    }
+
+    #region Domain Helpers
+
     public CreateTenantRequestBuilder WithRandomName()
     {
-        _name = new(() => $"Tenant-{RandomString()}");
-        return this;
+        var suffixes = new[] { "Solutions", "Systems", "Hub", "Lab", "Digital" };
+        var randomName = $"Tenant {Guid.NewGuid().ToString()[..6]} {suffixes[Random.Shared.Next(suffixes.Length)]}";
+
+        // Internally calls the generated WithName(string value)
+        return WithName(randomName);
     }
 
-    /// <summary>
-    /// Generates a random Domain (e.g., "7a2b9c.com").
-    /// </summary>
     public CreateTenantRequestBuilder WithRandomDomain()
     {
-        _domain = new(() => $"{RandomString(6)}.com");
-        return this;
+        var tlds = new[] { "com", "net", "org", "tech" };
+        var domain = $"api-{Guid.NewGuid().ToString()[..4]}.{tlds[Random.Shared.Next(tlds.Length)]}";
+
+        return WithDomain(domain);
     }
 
     /// <summary>
-    /// Sets sane defaults for all non-nullable or required fields.
+    /// Useful for testing validation logic that requires a non-null but empty name.
     /// </summary>
-    public override CreateTenantRequestBuilder WithDefaults()
+    public CreateTenantRequestBuilder WithEmptyName()
     {
-        return this
-            .WithRandomName()
-            .WithRandomDomain();
+        return WithName(string.Empty);
+    }
+
+    /// <summary>
+    /// Sets a name exceeding common database/validation limits (e.g., 256+ chars).
+    /// </summary>
+    public CreateTenantRequestBuilder WithOverlyLongName()
+    {
+        return WithName(new string('A', 300));
+    }
+
+    public static implicit operator CreateTenantRequest(CreateTenantRequestBuilder builder)
+    {
+        return builder.Build();
     }
 
     #endregion

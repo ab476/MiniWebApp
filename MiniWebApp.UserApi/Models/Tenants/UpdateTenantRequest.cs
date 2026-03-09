@@ -1,3 +1,7 @@
 ﻿namespace MiniWebApp.UserApi.Models.Tenants;
 
-public record UpdateTenantRequest(string Name, string? Domain);
+public record UpdateTenantRequest
+{
+    public string Name { get; init; } = string.Empty;
+    public string? Domain { get; init; }
+}

@@ -2,72 +2,44 @@
 
 namespace MiniWebApp.UserApi.Test.Builders.Tenants;
 
-/// <summary>
-/// Builder for DeactivateTenantRequest using deferred execution via Lazy fields.
-/// </summary>
-public partial class DeactivateTenantRequestBuilder : Builder<DeactivateTenantRequest, DeactivateTenantRequestBuilder>
+[BuilderFor(typeof(DeactivateTenantRequest))]
+public partial class DeactivateTenantRequestBuilder : IBuilder<DeactivateTenantRequest, DeactivateTenantRequestBuilder>
 {
-    private Lazy<Guid> _tenantId = new(() => Guid.Empty);
-
-    public DeactivateTenantRequestBuilder()
-    {
-        // Initializing with a default Guid to ensure the Lazy object is ready
-        _tenantId = new(() => Guid.NewGuid());
-    }
-
-    #region Boilerplate Methods
-
     /// <summary>
-    /// Instantiates the record by evaluating the Lazy TenantId field.
+    /// Returns a new instance of the builder with a valid, random TenantId.
     /// </summary>
-    public override DeactivateTenantRequest Build()
-    {
-        return new DeactivateTenantRequest(
-            TenantId: _tenantId.Value
-        );
-    }
-
-    public DeactivateTenantRequestBuilder WithTenantId(Guid value)
-    {
-        _tenantId = new(() => value);
-        return Instance;
-    }
-
-    public DeactivateTenantRequestBuilder WithoutTenantId()
-    {
-        _tenantId = new(() => default);
-        return Instance;
-    }
+    public static DeactivateTenantRequestBuilder Default => new DeactivateTenantRequestBuilder().WithDefaults();
 
     /// <summary>
-    /// Maps the value from an existing request into a new deferred Lazy wrapper.
+    /// Sets a fresh Guid by default to represent a valid deactivation target.
     /// </summary>
-    public DeactivateTenantRequestBuilder WithValuesFrom(DeactivateTenantRequest example)
+    public DeactivateTenantRequestBuilder WithDefaults()
     {
-        _tenantId = new(() => example.TenantId);
-        return Instance;
+        return WithRandomTenantId();
     }
 
-    #endregion
-
-    #region Custom Extensions (Object Mother Logic)
+    #region Domain Helpers
 
     /// <summary>
-    /// Generates a new random Guid for the TenantId.
+    /// Explicitly generates a new random Guid.
+    /// Internally calls the generated WithTenantId method.
     /// </summary>
     public DeactivateTenantRequestBuilder WithRandomTenantId()
     {
-        _tenantId = new(() => Guid.NewGuid());
-        return Instance;
+        return WithTenantId(Guid.NewGuid());
     }
 
     /// <summary>
-    /// Sets sane defaults for the request.
+    /// Sets the TenantId to Guid.Empty to test edge-case validation scenarios.
     /// </summary>
-    public override DeactivateTenantRequestBuilder WithDefaults()
+    public DeactivateTenantRequestBuilder WithEmptyTenantId()
     {
-        return this
-            .WithRandomTenantId();
+        return WithTenantId(Guid.Empty);
+    }
+
+    public static implicit operator DeactivateTenantRequest(DeactivateTenantRequestBuilder builder)
+    {
+        return builder.Build();
     }
 
     #endregion

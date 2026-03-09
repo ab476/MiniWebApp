@@ -1,3 +1,6 @@
 ﻿namespace MiniWebApp.UserApi.Models.Tenants;
 
-public record DeactivateTenantRequest(Guid TenantId);
+public record DeactivateTenantRequest
+{ 
+    public Guid TenantId { get; init; } 
+}

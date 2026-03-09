@@ -2,98 +2,68 @@
 
 namespace MiniWebApp.UserApi.Test.Builders.Tenants;
 
-/// <summary>
-/// Builder for UpdateTenantRequest using deferred execution via Lazy fields.
-/// </summary>
-public partial class UpdateTenantRequestBuilder : Builder<UpdateTenantRequest, UpdateTenantRequestBuilder>
+
+
+[BuilderFor(typeof(UpdateTenantRequest))]
+public partial class UpdateTenantRequestBuilder : IBuilder<UpdateTenantRequest, UpdateTenantRequestBuilder>
 {
-    private Lazy<string> _name = new(() => default!);
-    private Lazy<string?> _domain = new(() => default);
-
-    public UpdateTenantRequestBuilder()
-    {
-        // Initializing with sane defaults to avoid immediate evaluation
-        _name = new(() => "Updated Tenant Name");
-        _domain = new(() => null);
-    }
-
-    #region Boilerplate Methods
-
     /// <summary>
-    /// Instantiates the record by evaluating all Lazy backing fields.
+    /// Returns a valid update request with randomized data.
     /// </summary>
-    public override UpdateTenantRequest Build()
-    {
-        return new UpdateTenantRequest(
-            Name: _name.Value,
-            Domain: _domain.Value
-        );
-    }
-
-    public UpdateTenantRequestBuilder WithName(string value)
-    {
-        _name = new(() => value);
-        return Instance;
-    }
-
-    public UpdateTenantRequestBuilder WithoutName()
-    {
-        _name = new(() => default!);
-        return Instance;
-    }
-
-    public UpdateTenantRequestBuilder WithDomain(string? value)
-    {
-        _domain = new(() => value);
-        return Instance;
-    }
-
-    public UpdateTenantRequestBuilder WithoutDomain()
-    {
-        _domain = new(() => null);
-        return Instance;
-    }
+    public static UpdateTenantRequestBuilder Default => new UpdateTenantRequestBuilder().WithDefaults();
 
     /// <summary>
-    /// Shallow clones values from an existing request into deferred Lazy wrappers.
+    /// Sets defaults that represent a typical, valid update operation.
     /// </summary>
-    public UpdateTenantRequestBuilder WithValuesFrom(UpdateTenantRequest example)
+    public UpdateTenantRequestBuilder WithDefaults()
     {
-        _name = new(() => example.Name);
-        _domain = new(() => example.Domain);
-        return Instance;
+        return WithRandomName()
+            .WithRandomDomain();
     }
 
-    #endregion
-
-    #region Custom Extensions (Object Mother Logic)
+    #region Domain Helpers
 
     /// <summary>
-    /// Generates a randomized Name using the base Builder's RandomString helper.
+    /// Generates a randomized name to simulate an edit.
     /// </summary>
     public UpdateTenantRequestBuilder WithRandomName()
     {
-        _name = new(() => $"Updated-{RandomString(10)}");
-        return Instance;
+        var prefixes = new[] { "Updated", "New", "Revised", "Modern" };
+        var randomName = $"{prefixes[Random.Shared.Next(prefixes.Length)]} {Guid.NewGuid().ToString()[..6]}";
+
+        return WithName(randomName);
     }
 
     /// <summary>
-    /// Generates a random subdomain (e.g., "a1b2c3.net").
+    /// Generates a randomized domain string.
     /// </summary>
     public UpdateTenantRequestBuilder WithRandomDomain()
     {
-        _domain = new(() => $"{RandomString(6).ToLower()}.net");
-        return Instance;
+        var tlds = new[] { "com", "io", "net", "org" };
+        var domain = $"updated-{Guid.NewGuid().ToString()[..4]}.{tlds[Random.Shared.Next(tlds.Length)]}";
+
+        return WithDomain(domain);
     }
 
     /// <summary>
-    /// Sets all required fields to randomized values for testing.
+    /// Sets the domain to null, useful for testing the removal of a custom domain.
     /// </summary>
-    public override UpdateTenantRequestBuilder WithDefaults()
+    public UpdateTenantRequestBuilder WithNullDomain()
     {
-        return this
-            .WithRandomName()
-            .WithRandomDomain();
+        return WithDomain((string?)null);
+    }
+
+    /// <summary>
+    /// Creates a request that violates "Name Required" validation rules.
+    /// </summary>
+    public UpdateTenantRequestBuilder WithInvalidEmptyName()
+    {
+        return WithName(string.Empty);
+    }
+
+    public static implicit operator UpdateTenantRequest(UpdateTenantRequestBuilder builder)
+    {
+        return builder.Build();
     }
 
     #endregion

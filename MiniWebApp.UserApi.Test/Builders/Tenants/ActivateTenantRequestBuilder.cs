@@ -2,72 +2,44 @@
 
 namespace MiniWebApp.UserApi.Test.Builders.Tenants;
 
-/// <summary>
-/// Builder for ActivateTenantRequest using deferred execution via Lazy fields.
-/// </summary>
-public partial class ActivateTenantRequestBuilder : Builder<ActivateTenantRequest, ActivateTenantRequestBuilder>
+
+[BuilderFor(typeof(ActivateTenantRequest))]
+public partial class ActivateTenantRequestBuilder : IBuilder<ActivateTenantRequest, ActivateTenantRequestBuilder>
 {
-    private Lazy<Guid> _tenantId = new(() => Guid.Empty);
-
-    public ActivateTenantRequestBuilder()
-    {
-        // Initializing with a random Guid as the default
-        _tenantId = new(() => Guid.NewGuid());
-    }
-
-    #region Boilerplate Methods
+    /// <summary>
+    /// Returns a new instance of the builder with valid defaults.
+    /// </summary>
+    public static ActivateTenantRequestBuilder Default => new ActivateTenantRequestBuilder().WithDefaults();
 
     /// <summary>
-    /// Instantiates the record by evaluating the Lazy backing field.
+    /// Sets a fresh Guid by default to ensure the request is valid.
     /// </summary>
-    public override ActivateTenantRequest Build()
+    public ActivateTenantRequestBuilder WithDefaults()
     {
-        return new ActivateTenantRequest(
-            TenantId: _tenantId.Value
-        );
+        return WithTenantId(Guid.NewGuid());
     }
 
-    public ActivateTenantRequestBuilder WithTenantId(Guid value)
-    {
-        _tenantId = new(() => value);
-        return Instance;
-    }
+    #region Domain Helpers
 
-    public ActivateTenantRequestBuilder WithoutTenantId()
+    /// <summary>
+    /// Explicitly sets an empty Guid to test "Tenant Not Found" or validation scenarios.
+    /// </summary>
+    public ActivateTenantRequestBuilder WithEmptyTenantId()
     {
-        _tenantId = new(() => default);
-        return Instance;
+        return WithTenantId(Guid.Empty);
     }
 
     /// <summary>
-    /// Maps the value from an existing request into a new deferred Lazy wrapper.
+    /// Generates a completely new random Guid for the TenantId.
     /// </summary>
-    public ActivateTenantRequestBuilder WithValuesFrom(ActivateTenantRequest example)
+    public ActivateTenantRequestBuilder WithNewRandomId()
     {
-        _tenantId = new(() => example.TenantId);
-        return Instance;
+        return WithTenantId(Guid.NewGuid());
     }
 
-    #endregion
-
-    #region Custom Extensions (Object Mother Logic)
-
-    /// <summary>
-    /// Generates a new random Guid for the TenantId.
-    /// </summary>
-    public ActivateTenantRequestBuilder WithRandomTenantId()
+    public static implicit operator ActivateTenantRequest(ActivateTenantRequestBuilder builder)
     {
-        _tenantId = new(() => Guid.NewGuid());
-        return Instance;
-    }
-
-    /// <summary>
-    /// Sets sane defaults for the activation request.
-    /// </summary>
-    public override ActivateTenantRequestBuilder WithDefaults()
-    {
-        return this
-            .WithRandomTenantId();
+        return builder.Build();
     }
 
     #endregion

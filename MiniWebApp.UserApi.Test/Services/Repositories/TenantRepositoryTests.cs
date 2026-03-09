@@ -138,7 +138,7 @@ public class TenantRepositoryTests(PostgresContainerFixture fixture)
     {
         // Arrange
         var tenant = await SeedTenantAsync(b => b.WithName("Old Name"));
-        var request = UpdateTenantRequestBuilder.Default.WithName("New Shiny Name");
+        var request = UpdateTenantRequestBuilder.Default.WithName("New Shiny Name").Build();
 
         // Act
         var result = await Repository.UpdateAsync(tenant.Id, request, CancellationToken);
@@ -175,7 +175,7 @@ public class TenantRepositoryTests(PostgresContainerFixture fixture)
     {
         // Arrange
         var tenant = await SeedTenantAsync(b => b.WithIsActive(true));
-        var request = DeactivateTenantRequestBuilder.Default.WithTenantId(tenant.Id);
+        var request = DeactivateTenantRequestBuilder.Default.WithTenantId(tenant.Id).Build();
 
         // Act
         var result = await Repository.DeactivateAsync(request, CancellationToken);
@@ -192,7 +192,7 @@ public class TenantRepositoryTests(PostgresContainerFixture fixture)
     {
         // Arrange
         var tenant = await SeedTenantAsync(b => b.WithIsActive(false));
-        var request = ActivateTenantRequestBuilder.New().WithTenantId(tenant.Id);
+        var request = ActivateTenantRequestBuilder.Default.WithTenantId(tenant.Id).Build();
 
         // Act
         var result = await Repository.ActivateAsync(request, CancellationToken);
@@ -216,7 +216,7 @@ public class TenantRepositoryTests(PostgresContainerFixture fixture)
     {
         var tenants = configurations.Select(configure =>
         {
-            var builder = TenantBuilder.New().WithDefaults();
+            var builder = TenantBuilder.Default;
             configure(builder);
             return builder.Build();
         }).ToList();
