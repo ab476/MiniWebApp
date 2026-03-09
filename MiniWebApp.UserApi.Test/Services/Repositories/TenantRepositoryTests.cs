@@ -10,7 +10,6 @@ public class TenantRepositoryTests(PostgresContainerFixture fixture)
     : IntegrationTestBase(fixture)
 {
     private ITenantRepository Repository => GetService<ITenantRepository>();
-    private UserDbContext DbContext => GetService<UserDbContext>();
 
     #region GetByIdAsync Tests
 
@@ -207,26 +206,7 @@ public class TenantRepositoryTests(PostgresContainerFixture fixture)
     #endregion
 
     #region Private Helpers
-    private async Task<Tenant> SeedTenantAsync(Action<TenantBuilder>? configure = null)
-    {
-        return (await SeedTenantsAsync(configure ?? (static _ => { })))[0];
-    }
-
-    private async Task<List<Tenant>> SeedTenantsAsync(params Action<TenantBuilder>[] configurations)
-    {
-        var tenants = configurations.Select(configure =>
-        {
-            var builder = TenantBuilder.Default;
-            configure(builder);
-            return builder.Build();
-        }).ToList();
-
-        await DbContext.Tenants.AddRangeAsync(tenants, CancellationToken);
-        await DbContext.SaveChangesAsync(CancellationToken);
-        DbContext.ChangeTracker.Clear();
-
-        return tenants;
-    }
+    
 
     private async Task<List<Tenant>> SeedTenantsAsync(int count, Action<TenantBuilder, int>? configure = null)
     {

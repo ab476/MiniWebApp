@@ -11,10 +11,8 @@ public class PermissionQueriesTests(PostgresContainerFixture fixture)
     : IntegrationTestBase(fixture)
 {
     private IPermissionQueries Queries => GetService<IPermissionQueries>();
-    private UserDbContext DbContext => GetService<UserDbContext>();
 
-    #region GetPermissionAsync Tests
-    #region GetPermissionAsync Tests
+    
 
     [Fact]
     public async Task GetPermissionAsync_WhenNoIdOrCodeProvided_ReturnsBadRequest()
@@ -71,7 +69,6 @@ public class PermissionQueriesTests(PostgresContainerFixture fixture)
         result.Value!.Code.Should().Be(permission.Code.ToLowerInvariant());
     }
 
-    #endregion
     
     [Fact]
     public async Task GetPermissionAsync_ByCode_IsCaseInsensitiveAndTrimmed()
@@ -102,7 +99,6 @@ public class PermissionQueriesTests(PostgresContainerFixture fixture)
         result.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
-    #endregion
 
     #region ListPermissions Tests
 

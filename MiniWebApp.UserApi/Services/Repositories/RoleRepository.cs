@@ -2,45 +2,11 @@
 using MiniWebApp.UserApi.Domain;
 using MiniWebApp.UserApi.Models.Roles;
 
-namespace MiniWebApp.UserApi.Services;
+namespace MiniWebApp.UserApi.Services.Repositories;
 
-public class RoleService(UserDbContext _db) : IRoleService
+
+public sealed class RoleRepository(UserDbContext db) : IRoleRepository
 {
-
-    public async Task<Outcome<RoleResponse>> GetByIdAsync(Guid id, CancellationToken ct = default)
-    {
-        var role = await _db.Roles
-            .TagWith($"{nameof(RoleService)}.{nameof(GetByIdAsync)}")
-            .AsNoTracking()
-            .FirstOrDefaultAsync(r => r.Id == id, ct);
-
-        return role is null
-            ? ("Role not found.", StatusCodes.Status404NotFound)
-            : (StatusCodes.Status200OK, role.ToResponse());
-    }
-
-    public async Task<Outcome<IReadOnlyList<RoleResponse>>> GetPagedAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken ct = default)
-    {
-        page = Math.Max(page, 1);
-        pageSize = Math.Clamp(pageSize, 1, 100);
-
-        var roles = await _db.Roles
-            .TagWith($"{nameof(RoleService)}.{nameof(GetPagedAsync)}")
-            .AsNoTracking()
-            .Where(r => r.TenantId == tenantId)
-            .OrderByDescending(r => r.CreatedAt)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ProjectToResponse()
-            .ToListAsync(ct);
-
-        return (StatusCodes.Status200OK, roles);
-    }
-
     public async Task<Outcome<RoleResponse>> CreateAsync(
         CreateRoleRequest request,
         CancellationToken ct = default)
@@ -55,8 +21,9 @@ public class RoleService(UserDbContext _db) : IRoleService
             CreatedAt = DateTime.UtcNow
         };
 
-        _db.Roles.Add(role);
-        await _db.SaveChangesAsync(ct);
+        await db.Roles.AddAsync(role, ct);
+
+        await db.SaveChangesAsync(ct);
 
         return (StatusCodes.Status201Created, role.ToResponse());
     }
@@ -66,8 +33,9 @@ public class RoleService(UserDbContext _db) : IRoleService
         UpdateRoleRequest request,
         CancellationToken ct = default)
     {
-        var rows = await _db.Roles
-            .TagWith($"{nameof(RoleService)}.{nameof(UpdateAsync)}")
+        // ExecuteUpdate skips the Change Tracker and hits the DB directly
+        var rows = await db.Roles
+            .TagWith("RoleRepository.UpdateAsync: Bulk updating role properties")
             .Where(r => r.Id == roleId)
             .ExecuteUpdateAsync(setters => setters
                 .SetProperty(r => r.Name, request.Name)
@@ -81,8 +49,9 @@ public class RoleService(UserDbContext _db) : IRoleService
 
     public async Task<Outcome> DeleteAsync(Guid roleId, CancellationToken ct = default)
     {
-        var rows = await _db.Roles
-            .TagWith($"{nameof(RoleService)}.{nameof(DeleteAsync)}")
+        // ExecuteDelete is a high-performance database-level delete
+        var rows = await db.Roles
+            .TagWith("RoleRepository.DeleteAsync: Bulk deleting role by ID")
             .Where(r => r.Id == roleId)
             .ExecuteDeleteAsync(ct);
 

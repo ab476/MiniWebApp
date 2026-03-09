@@ -1,10 +1,11 @@
 ﻿using MiniWebApp.Core.Security;
 using MiniWebApp.UserApi.Models.Roles;
+using MiniWebApp.UserApi.Services.Repositories;
 
 namespace MiniWebApp.UserApi.Controllers;
 
 [Route("api/roles")]
-public class RolesController(RoleService roleService, IUserContext _user) : ApiControllerBase
+public class RolesController(IRoleQueries roleService, IRoleRepository roleRepository, IUserContext _user) : ApiControllerBase
 {
     [HttpGet("{id:guid}")]
     [Authorize(Policy = AppPermissions.Roles.Read)]
@@ -41,7 +42,7 @@ public class RolesController(RoleService roleService, IUserContext _user) : ApiC
         }
        
         await ValidateAsync(request, ct);
-        var outcome = await roleService.CreateAsync(request, ct);
+        var outcome = await roleRepository.CreateAsync(request, ct);
         if (outcome.IsSuccess)
         {
             var id = outcome.Value!.Id;
@@ -63,7 +64,7 @@ public class RolesController(RoleService roleService, IUserContext _user) : ApiC
         CancellationToken ct = default)
     {
         await ValidateAsync(request, ct);
-        return await roleService.UpdateAsync(roleId, request, ct);
+        return await roleRepository.UpdateAsync(roleId, request, ct);
     }
 
     [HttpDelete("{roleId:guid}")]
@@ -72,6 +73,6 @@ public class RolesController(RoleService roleService, IUserContext _user) : ApiC
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<Outcome> DeleteAsync(Guid roleId, CancellationToken ct = default)
     {
-        return await roleService.DeleteAsync(roleId, ct);
+        return await roleRepository.DeleteAsync(roleId, ct);
     }
 }

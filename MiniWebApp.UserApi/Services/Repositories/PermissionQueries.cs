@@ -30,6 +30,7 @@ public sealed class PermissionQueries(
         }
 
         var result = await query
+            .TagWith("PermissionQueries.GetPermissionAsync: Fetching permission by ID or Code")
             .ProjectToResponse()
             .FirstOrDefaultAsync(ct);
 
@@ -43,6 +44,7 @@ public sealed class PermissionQueries(
 
         var items = await db.Permissions
             .AsNoTracking()
+            .TagWith("PermissionQueries.ListPermissions: Fetching all permissions ordered by Code")
             .OrderBy(x => x.Code)
             .ProjectToResponse()
             .ToArrayAsync(ct);

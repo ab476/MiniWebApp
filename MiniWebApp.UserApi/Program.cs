@@ -36,7 +36,10 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownIPNetworks.Clear();
 });
 
-builder.Services.AddScoped<ITenantRepository, TenantRepository>().AddScoped<RoleService>()
+builder.Services
+    .AddScoped<ITenantRepository, TenantRepository>()
+    .AddScoped<IRoleRepository, RoleRepository>()
+    .AddScoped<IRoleQueries, RoleQueries>()
     .AddScoped<IPermissionQueries, PermissionQueries>();
 builder.AddNpgsqlDbContext<UserDbContext>("userdb");
 builder.Services
