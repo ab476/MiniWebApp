@@ -23,8 +23,7 @@ public sealed class PermissionQueries(
         {
             query = query.Where(x => x.Id == request.Id);
         }
-
-        if (!string.IsNullOrWhiteSpace(request.Code))
+        else if (!string.IsNullOrWhiteSpace(request.Code))
         {
             var normalizedCode = request.Code.ToLowerInvariant().Trim();
             query = query.Where(x => x.Code == normalizedCode);
