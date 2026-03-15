@@ -1,24 +1,31 @@
-﻿using MiniWebApp.UserApi.Contracts.Roles;
-using MiniWebApp.UserApi.Domain;
-using MiniWebApp.UserApi.Models.Roles;
+﻿using MiniWebApp.UserApi.Domain;
 
 namespace MiniWebApp.UserApi.Services.Repositories;
 
-public sealed class RoleQueries(UserDbContext db) : IRoleQueries
+public sealed class RoleQueries(UserDbContext db, IRequestContext requestContext)
+    : RepositoryBase(requestContext), IRoleQueries
 {
-    public async Task<Outcome<RoleResponse>> GetByIdAsync(Guid id, CancellationToken ct = default)
+    public async Task<Outcome<RoleResponse>> GetByRoleCodeAsync(string roleCode, CancellationToken ct = default)
     {
         var result = await db.Roles
-            .TagWith("RoleQueries.GetByIdAsync: Fetching role by primary key")
             .AsNoTracking()
+            .Where(r => r.TenantId == ContextTenantId && r.RoleCode == roleCode)
             .ProjectToResponse() // Using projection to avoid loading the whole entity
-            .FirstOrDefaultAsync(r => r.Id == id, ct);
+            .FirstOrDefaultAsync(ct);
 
         return result is null
             ? ("Role not found.", StatusCodes.Status404NotFound)
             : (StatusCodes.Status200OK, result);
     }
-
+    /// <inheritdoc />
+    public async Task<HashSet<string>> GetExistingRoleCodesAsync(Guid tenantId, CancellationToken ct = default)
+    {
+        return await db.Roles
+            .AsNoTracking()
+            .Where(r => r.TenantId == tenantId)
+            .Select(r => r.RoleCode)
+            .ToHashSetAsync(StringComparer.InvariantCultureIgnoreCase, ct);
+    }
     public async Task<Outcome<IReadOnlyList<RoleResponse>>> GetPagedAsync(
         Guid tenantId,
         int page,

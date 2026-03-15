@@ -1,10 +1,12 @@
-﻿namespace MiniWebApp.UserApi.Services.Auth;
+﻿using System.Net;
+
+namespace MiniWebApp.UserApi.Services.Auth;
 
 public interface IRefreshTokenService
 {
-    Task<Outcome<TokenResponse>> CreateInitialTokensAsync(Guid userId, string ipAddress, CancellationToken ct = default);
-    Task<Outcome> RevokeAllUserTokensAsync(Guid userId, CancellationToken ct = default);
-    Task<Outcome<TokenResponse>> RotateTokenAsync(RefreshTokenRequest request, string ipAddress, CancellationToken ct = default);
+    Task<Outcome<RefreshTokenResponse>> CreateInitialTokensAsync(Guid userId, IPAddress? ipAddress, CancellationToken ct = default);
+    Task<Outcome<RefreshTokenResponse>> RotateAsync(string refreshToken, IPAddress? ipAddress, CancellationToken ct = default);
+    Task<Outcome<IReadOnlyList<RefreshTokenResponse>>> GetActiveTokensByUserAsync(Guid userId, CancellationToken ct = default);
+    Task<Outcome> RevokeAllForUserAsync(Guid userId, CancellationToken ct = default);
+    Task<Outcome> PurgeExpiredTokensAsync(CancellationToken ct = default);
 }
-
-

@@ -5,29 +5,21 @@ public class User
     public Guid Id { get; set; }
     public Guid TenantId { get; set; }
 
-    public string Email
+    public required string Email
     {
         get;
-        set
-        {
-            field = value;
-            NormalizedEmail = value.ToUpperInvariant();
-        }
-    } = default!;
-    public string NormalizedEmail { get; private set; } = default!;
+        set;
+    }
+    public required string NormalizedEmail { get; set; }
 
-    public string UserName
+    public required string UserName
     {
         get;
-        set
-        {
-            field = value;
-            NormalizedUsername = value.ToUpperInvariant();
-        }
-    } = default!;
-    public string NormalizedUsername { get; private set; } = default!;
+        set;
+    }
+    public required string NormalizedUsername { get; set; }
 
-    public string PasswordHash { get; set; } = default!;
+    public required string PasswordHash { get; set; }
     public bool EmailConfirmed { get; set; }
     public UserStatus Status { get; set; } = UserStatus.Pending;
 

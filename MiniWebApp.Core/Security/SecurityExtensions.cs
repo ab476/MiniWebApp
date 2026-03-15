@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MiniWebApp.Core.Services;
 
 namespace MiniWebApp.Core.Security;
 
@@ -39,7 +40,10 @@ public static class SecurityExtensions
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
 
         // Scoped: Created once per client request
-        services.AddScoped<IUserContext, UserContext>();
+        services
+            .AddScoped<IScopedStateService, ScopedStateService>()
+            .AddScoped<IUserContext, UserContext>()
+            .AddScoped<ITenantProvider>(sp => sp.GetRequiredService<IUserContext>());
 
         return services;
     }

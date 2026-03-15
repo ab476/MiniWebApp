@@ -1,48 +1,67 @@
-﻿using MiniWebApp.UserApi.Domain;
+﻿using MiniWebApp.UserApi.Services.Repositories;
 
 namespace MiniWebApp.UserApi.Infrastructure.HostedService;
 
-public class PermissionSeeder(UserDbContext dbContext) : IPermissionSeeder
+/// <summary>
+/// Seeds the database with application-level claims (permissions).
+/// </summary>
+/// <remarks>
+/// <strong>Key Responsibilities:</strong><br/>
+/// <list type="bullet">
+///     <item><description>Extracts statically defined permission codes from application constants.</description></item>
+///     <item><description>Cross-references existing claims in the database to prevent duplicates.</description></item>
+///     <item><description>Persists any missing claims with categorized descriptions.</description></item>
+/// </list>
+/// </remarks>
+public class PermissionSeeder(IClaimRepository claimCommands, IClaimQueries claimQueries) : IDataSeeder
 {
+    /// <summary>
+    /// Executes the asynchronous permission seeding process.
+    /// </summary>
+    /// <param name="ct">A cancellation token to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous seeding operation.</returns>
     public async Task SeedAsync(CancellationToken ct)
     {
-        // 1. Extract permissions from your static constants
         var permissionData = GetPermissionsToSeed();
 
-        // 2. Fetch existing permissions to avoid duplicates
-        var existingCodesSet = await dbContext.Permissions
-            .Select(p => p.Code)
-            .ToHashSetAsync(ct);
+        var existingCodesSet = await claimQueries.GetExistingClaimCodesAsync(ct);
 
         var newPermissions = permissionData
-            .Where(p => !existingCodesSet.Contains(p.Code))
+            .Where(p => !existingCodesSet.Contains(p.ClaimCode))
             .ToList();
 
-        if (newPermissions.Count != 0)
-        {
-            await dbContext.Permissions.AddRangeAsync(newPermissions, ct);
-            await dbContext.SaveChangesAsync(ct);
-        }
-    }
-    
-    private static List<Permission> GetPermissionsToSeed()
-    {
-        var list = new List<Permission>();
+        if (newPermissions.Count == 0) return;
 
-        list.AddRange(BuildPermissions(AppPermissions.Tenants.All, nameof(AppPermissions.Tenants)));
-        list.AddRange(BuildPermissions(AppPermissions.Roles.All, nameof(AppPermissions.Roles)));
-        list.AddRange(BuildPermissions(AppPermissions.Users.All, nameof(AppPermissions.Users)));
-        list.AddRange(BuildPermissions(AppPermissions.Permissions.All, nameof(AppPermissions.Permissions)));
-
-        return list;
+        // Use the repository to add new claims
+        await claimCommands.AddClaimsAsync(newPermissions, ct);
     }
 
-    private static IEnumerable<Permission> BuildPermissions(IEnumerable<string> codes, string category)
+    /// <summary>
+    /// Aggregates all statically defined application permissions into a single collection.
+    /// </summary>
+    /// <returns>An enumerable collection of <see cref="AppClaim"/> entities ready for seeding.</returns>
+    private static IEnumerable<AppClaim> GetPermissionsToSeed()
     {
-        return codes.Select(code => new Permission
+        return
+        [
+            .. BuildPermissions(AppPermissions.Tenants.All, nameof(AppPermissions.Tenants)),
+            .. BuildPermissions(AppPermissions.Roles.All, nameof(AppPermissions.Roles)),
+            .. BuildPermissions(AppPermissions.Users.All, nameof(AppPermissions.Users)),
+            .. BuildPermissions(AppPermissions.Permissions.All, nameof(AppPermissions.Permissions))
+        ];
+    }
+
+    /// <summary>
+    /// Projects a collection of string-based permission codes into <see cref="AppClaim"/> entities.
+    /// </summary>
+    /// <param name="codes">The raw permission codes.</param>
+    /// <param name="category">The grouping category for these permissions.</param>
+    /// <returns>An enumerable collection of mapped <see cref="AppClaim"/> objects.</returns>
+    private static IEnumerable<AppClaim> BuildPermissions(IEnumerable<string> codes, string category)
+    {
+        return codes.Select(code => new AppClaim
         {
-            Id = Guid.NewGuid(),
-            Code = code,
+            ClaimCode = code,
             Category = category,
             Description = $"Allows {code.Replace('.', ' ')}"
         });

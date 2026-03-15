@@ -8,43 +8,42 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
     {
         builder.ToTable("roles", "public");
 
-        builder.HasKey(x => x.Id)
+        // 1. Composite Primary Key: RoleCode + TenantId
+        builder.HasKey(x => new { x.TenantId, x.RoleCode })
                .HasName("pk_roles");
 
-        builder.Property(x => x.Id)
-               .HasColumnName("id");
+        builder.Property(x => x.RoleCode)
+               .HasColumnName("role_code") // Updated from 'name' to match property
+               .HasMaxLength(150)
+               .IsRequired();
 
         builder.Property(x => x.TenantId)
                .HasColumnName("tenant_id")
                .IsRequired();
 
-        builder.Property(x => x.Name)
-               .HasColumnName("name")
-               .HasMaxLength(150)
-               .IsRequired();
-
-        builder.Property(x => x.NormalizedName)
-               .HasColumnName("normalized_name")
-               .HasMaxLength(150)
-               .IsRequired();
-
-        builder.Property(x => x.Description)
-               .HasColumnName("description");
+        // 2. Remaining Properties
+        builder.Property(x => x.DisplayName)
+               .HasColumnName("display_name") // Updated from 'description'
+               .HasMaxLength(250);
 
         builder.Property(x => x.CreatedAt)
                .HasColumnName("created_at")
-               .IsRequired();
+               .IsRequired()
+               .HasDefaultValueSql("CURRENT_TIMESTAMP"); // Database-side default
 
+        builder.Property(x => x.CreatedBy)
+               .HasColumnName("created_by");
+
+        // 3. Relationships
         builder.HasOne(x => x.Tenant)
-               .WithMany()
+               .WithMany() // Assuming Tenant doesn't have a collection of Roles
                .HasForeignKey(x => x.TenantId)
                .OnDelete(DeleteBehavior.Restrict)
                .HasConstraintName("fk_roles_tenant");
 
-        builder.HasIndex(x => new { x.TenantId, x.NormalizedName })
-               .HasDatabaseName("ux_roles_tenant_normalized_name")
-               .IsUnique();
-
+        // 4. Indexes
+        // PK already covers (TenantId, RoleCode), but an index on TenantId alone
+        // helps with filtering by tenant.
         builder.HasIndex(x => x.TenantId)
                .HasDatabaseName("ix_roles_tenant_id");
     }

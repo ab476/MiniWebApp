@@ -16,5 +16,5 @@ public class Note
     // Soft delete
     public bool IsDeleted { get; set; } = false;
 
-    public ICollection<NoteTag> Tags { get; set; } = new List<NoteTag>();
+    public ICollection<NoteTag> Tags { get; set; } = [];
 }

@@ -3,30 +3,46 @@ using MiniWebApp.UserApi.Options;
 
 namespace MiniWebApp.UserApi.Infrastructure.HostedService;
 
+/// <summary>
+/// Provides extension methods for registering database seeding services into the application's dependency injection container.
+/// </summary>
 public static class SeedServiceExtensions
 {
-    extension(WebApplicationBuilder builder)
+    /// <summary>
+    /// Configures and registers all necessary services, options, and hosted services required for the automated database seeding pipeline.
+    /// </summary>
+    /// <typeparam name="TUser">The type representing the user entity in the application.</typeparam>
+    /// <param name="builder">The <see cref="WebApplicationBuilder"/> to add the services to.</param>
+    /// <returns>The modified <see cref="WebApplicationBuilder"/> for method chaining.</returns>
+    /// <remarks>
+    /// <strong>Registration Details:</strong>
+    /// <list type="bullet">
+    ///     <item><description>Loads the 'appsettings.seeddata.json' configuration file.</description></item>
+    ///     <item><description>Binds the loaded configuration to <see cref="SeedDataOptions"/>.</description></item>
+    ///     <item><description>Registers a generic <see cref="IPasswordHasher{TUser}"/> for secure credential generation.</description></item>
+    ///     <item><description>Registers individual domain seeders (<see cref="PermissionSeeder"/>, <see cref="TenantSeeder"/>, <see cref="RoleSeeder"/>, <see cref="UserSeeder"/>) in execution order.</description></item>
+    ///     <item><description>Registers the <see cref="ISystemIdentitySetupService"/> for establishing a super-admin context during execution.</description></item>
+    ///     <item><description>Registers the <see cref="DatabaseSeederHostedService"/> as a background service to orchestrate the seeding process on startup.</description></item>
+    /// </list>
+    /// </remarks>
+    public static WebApplicationBuilder AddDatabaseSeeding(this WebApplicationBuilder builder)
     {
-        public WebApplicationBuilder AddDatabaseSeeding<TUser>() where TUser : class
-        {
-            // 1. Add the JSON file
-            builder.Configuration.AddJsonFile("appsettings.seeddata.json", optional: true, reloadOnChange: true);
+        builder.Configuration.AddJsonFile("appsettings.seeddata.json", optional: true, reloadOnChange: true);
 
-            // 2. Bind Options
-            builder.Services.Configure<SeedDataOptions>(
-                builder.Configuration.GetSection("SeedData"));
+        builder.Services.Configure<SeedDataOptions>(
+            builder.Configuration.GetSection("SeedData"));
 
-            // 3. Register Identity and Seeding Services
-            builder.Services.AddScoped<IPasswordHasher<TUser>, PasswordHasher<TUser>>();
-            builder.Services.AddScoped<IPermissionSeeder, PermissionSeeder>();
-            builder.Services.AddScoped<ITenantSeeder, TenantSeeder>();
-            builder.Services.AddScoped<IRoleSeeder, RoleSeeder>();
-            builder.Services.AddScoped<IUserSeeder, UserSeeder>();
+        builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
-            // 4. Register the Background Service
-            builder.Services.AddHostedService<DatabaseSeederHostedService>();
+        builder.Services.AddScoped<IDataSeeder, PermissionSeeder>();
+        builder.Services.AddScoped<IDataSeeder, TenantSeeder>();
+        builder.Services.AddScoped<IDataSeeder, RoleSeeder>();
+        builder.Services.AddScoped<IDataSeeder, UserSeeder>();
 
-            return builder;
-        }
+        builder.Services.AddScoped<ISystemIdentitySetupService, SystemIdentitySetupService>();
+
+        builder.Services.AddHostedService<DatabaseSeederHostedService>();
+
+        return builder;
     }
 }

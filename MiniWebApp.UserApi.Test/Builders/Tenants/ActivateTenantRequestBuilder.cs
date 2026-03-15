@@ -1,11 +1,10 @@
-﻿using MiniWebApp.UserApi.Models.Tenants;
-
-namespace MiniWebApp.UserApi.Test.Builders.Tenants;
+﻿namespace MiniWebApp.UserApi.Test.Builders.Tenants;
 
 
-[BuilderFor(typeof(ActivateTenantRequest))]
-public partial class ActivateTenantRequestBuilder : IBuilder<ActivateTenantRequest, ActivateTenantRequestBuilder>
+public class ActivateTenantRequestBuilder : IBuilder<ActivateTenantRequest, ActivateTenantRequestBuilder>
 {
+    public Guid TenantId { get; private set; }
+
     /// <summary>
     /// Returns a new instance of the builder with valid defaults.
     /// </summary>
@@ -20,7 +19,11 @@ public partial class ActivateTenantRequestBuilder : IBuilder<ActivateTenantReque
     }
 
     #region Domain Helpers
-
+    public ActivateTenantRequestBuilder WithTenantId(Guid value)
+    {
+        TenantId = value;
+        return this;
+    }
     /// <summary>
     /// Explicitly sets an empty Guid to test "Tenant Not Found" or validation scenarios.
     /// </summary>
@@ -35,6 +38,11 @@ public partial class ActivateTenantRequestBuilder : IBuilder<ActivateTenantReque
     public ActivateTenantRequestBuilder WithNewRandomId()
     {
         return WithTenantId(Guid.NewGuid());
+    }
+
+    public ActivateTenantRequest Build()
+    {
+        return new ActivateTenantRequest(TenantId);
     }
 
     public static implicit operator ActivateTenantRequest(ActivateTenantRequestBuilder builder)

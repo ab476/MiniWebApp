@@ -11,7 +11,7 @@ public sealed class JwtTokenBuilder
     private string _audience = "TestAudience";
     private string _secret = "ThisIsAStrongSecretForTestingPurposeOnly_64BytesLongString!!!";
     private DateTime _expires = DateTime.UtcNow.AddHours(1);
-    private List<Claim> _claims = new();
+    private List<System.Security.Claims.Claim> _claims = [];
 
     public static JwtTokenBuilder Create() => new();
 

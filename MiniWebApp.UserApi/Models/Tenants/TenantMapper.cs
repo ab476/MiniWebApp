@@ -1,12 +1,93 @@
-﻿using Riok.Mapperly.Abstractions;
+﻿using MiniWebApp.UserApi.Services.Repositories;
+using System.Linq.Expressions;
 
-namespace MiniWebApp.UserApi.Contracts.Tenants;
+namespace MiniWebApp.UserApi.Models.Tenants;
 
-[Mapper]
-public static partial class TenantMapper
+/// <summary>
+/// Provides mapping extensions for <see cref="Tenant"/> entities to <see cref="TenantResponse"/> DTOs.
+/// </summary>
+public static class TenantMapperExtensions
 {
-    public static partial TenantResponse ToResponse(this Tenant tenant);
-    public static partial IQueryable<TenantResponse> ProjectToResponse(this IQueryable<Tenant> query);
+    /// <summary>
+    /// Defines the expression for mapping a <see cref="Tenant"/> to a <see cref="TenantResponse"/>.
+    /// </summary>
+    private static readonly Expression<Func<Tenant, TenantResponse>> MappingExpression =
+        tenant => new TenantResponse(
+            Id: tenant.Id,
+            Name: tenant.Name,
+            Domain: tenant.Domain,
+            IsActive: tenant.IsActive,
+            CreatedAt: tenant.CreatedAt,
+            UpdatedAt: tenant.UpdatedAt
+        );
 
-    public static partial Tenant ToEntity(this TenantResponse response);
+    /// <summary>
+    /// A compiled function for mapping a single <see cref="Tenant"/> to a <see cref="TenantResponse"/>.
+    /// </summary>
+    private static readonly Func<Tenant, TenantResponse> CompiledMapper =
+        MappingExpression.Compile();
+
+    /// <summary>
+    /// Projects an <see cref="IQueryable{Tenant}"/> to an <see cref="IQueryable{TenantResponse}"/> (EF Core optimized).
+    /// </summary>
+    /// <param name="query">The original queryable of Tenant entities.</param>
+    /// <returns>A queryable of TenantResponse DTOs.</returns>
+    public static IQueryable<TenantResponse> ProjectToResponse(this IQueryable<Tenant> query)
+    {
+        return query.Select(MappingExpression);
+    }
+
+    /// <summary>
+    /// Converts a single <see cref="Tenant"/> entity to a <see cref="TenantResponse"/>.
+    /// </summary>
+    /// <param name="tenant">The Tenant entity to convert.</param>
+    /// <returns>A TenantResponse DTO.</returns>
+    public static TenantResponse ToResponse(this Tenant tenant)
+    {
+        return CompiledMapper.Invoke(tenant);
+    }
+}
+
+/// <summary>
+/// Provides mapping extensions for <see cref="User"/> entities to <see cref="UserResponse"/> DTOs.
+/// </summary>
+public static class UserMapperExtensions
+{
+    /// <summary>
+    /// Defines the expression for mapping a <see cref="User"/> to a <see cref="UserResponse"/>.
+    /// </summary>
+    private static readonly Expression<Func<User, UserResponse>> MappingExpression =
+        user => new UserResponse(
+            Id: user.Id,
+            Email: user.Email,
+            UserName: user.UserName,
+            Status: user.Status,
+            CreatedAt: user.CreatedAt
+        );
+
+    /// <summary>
+    /// A compiled function for mapping a single <see cref="User"/> to a <see cref="UserResponse"/>.
+    /// </summary>
+    private static readonly Func<User, UserResponse> CompiledMapper =
+        MappingExpression.Compile();
+
+    /// <summary>
+    /// Projects an <see cref="IQueryable{User}"/> to an <see cref="IQueryable{UserResponse}"/> (EF Core optimized).
+    /// </summary>
+    /// <param name="query">The original queryable of User entities.</param>
+    /// <returns>A queryable of UserResponse DTOs.</returns>
+    public static IQueryable<UserResponse> ProjectToResponse(this IQueryable<User> query)
+    {
+        return query.Select(MappingExpression);
+    }
+
+    /// <summary>
+    /// Converts a single <see cref="User"/> entity to a <see cref="UserResponse"/>.
+    /// </summary>
+    /// <param name="user">The User entity to convert.</param>
+    /// <returns>A UserResponse DTO.</returns>
+    public static UserResponse ToResponse(this User user)
+    {
+        return CompiledMapper.Invoke(user);
+    }
 }

@@ -1,19 +1,18 @@
 ﻿using MiniWebApp.Core.Security;
-using MiniWebApp.UserApi.Models.Roles;
 using MiniWebApp.UserApi.Services.Repositories;
 
 namespace MiniWebApp.UserApi.Controllers;
 
 [Route("api/roles")]
-public class RolesController(IRoleQueries roleService, IRoleRepository roleRepository, IUserContext _user) : ApiControllerBase
+public class RolesController(IRoleQueries roleService, IRoleRepository roleRepository, ITenantProvider _tenant) : ApiControllerBase
 {
-    [HttpGet("{id:guid}")]
+    [HttpGet("{roleCode}")]
     [Authorize(Policy = AppPermissions.Roles.Read)]
     [ProducesResponseType(typeof(RoleResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<Outcome<RoleResponse>> GetByIdAsync(Guid id, CancellationToken ct = default)
+    public async Task<Outcome<RoleResponse>> GetByRoleCodeAsync(string roleCode, CancellationToken ct = default)
     {
-        return await roleService.GetByIdAsync(id, ct);
+        return await roleService.GetByRoleCodeAsync(roleCode, ct);
     }
 
     [HttpGet]
@@ -38,41 +37,47 @@ public class RolesController(IRoleQueries roleService, IRoleRepository roleRepos
     {
         if (request.TenantId == Guid.Empty)
         {
-            request = request with { TenantId = _user.TenantId };
+            request = request with { TenantId = _tenant.TenantId };
         }
        
         await ValidateAsync(request, ct);
         var outcome = await roleRepository.CreateAsync(request, ct);
         if (outcome.IsSuccess)
         {
-            var id = outcome.Value!.Id;
+            var roleCode = outcome.Value!.RoleCode;
             Response.Headers.Location = Url.Action(
-                nameof(GetByIdAsync),
-                new { id }
+                nameof(GetByRoleCodeAsync),
+                new { roleCode }
             );
         }
         return outcome;
     }
 
-    [HttpPut("{roleId:guid}")]
+    [HttpPut("{roleCode}")]
     [Authorize(Policy = AppPermissions.Roles.Write)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<Outcome> UpdateAsync(
-        Guid roleId,
+        [FromRoute]string roleCode,
         [FromBody] UpdateRoleRequest request,
         CancellationToken ct = default)
     {
+        request = request with { RoleCode = roleCode };
         await ValidateAsync(request, ct);
-        return await roleRepository.UpdateAsync(roleId, request, ct);
+        return await roleRepository.UpdateAsync(request, ct);
     }
 
-    [HttpDelete("{roleId:guid}")]
+    [HttpDelete("{roleCode}")]
     [Authorize(Policy = AppPermissions.Roles.Manage)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<Outcome> DeleteAsync(Guid roleId, CancellationToken ct = default)
+    public async Task<Outcome> DeleteAsync(
+        [FromRoute] string roleCode,
+        [FromBody] DeleteRoleRequest request,
+        CancellationToken ct = default)
     {
-        return await roleRepository.DeleteAsync(roleId, ct);
+        request = request with { RoleCode = roleCode };
+        await ValidateAsync(request, ct);
+        return await roleRepository.DeleteAsync(request, ct);
     }
 }

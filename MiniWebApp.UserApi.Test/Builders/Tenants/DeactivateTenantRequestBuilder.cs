@@ -1,10 +1,14 @@
-﻿using MiniWebApp.UserApi.Models.Tenants;
+﻿namespace MiniWebApp.UserApi.Test.Builders.Tenants;
 
-namespace MiniWebApp.UserApi.Test.Builders.Tenants;
-
-[BuilderFor(typeof(DeactivateTenantRequest))]
 public partial class DeactivateTenantRequestBuilder : IBuilder<DeactivateTenantRequest, DeactivateTenantRequestBuilder>
 {
+    private Guid TenantId { get; set; }
+
+    public DeactivateTenantRequestBuilder()
+    {
+        TenantId = Guid.Empty; // Initialize with an empty GUID, WithDefaults will set a random one.
+    }
+
     /// <summary>
     /// Returns a new instance of the builder with a valid, random TenantId.
     /// </summary>
@@ -16,6 +20,12 @@ public partial class DeactivateTenantRequestBuilder : IBuilder<DeactivateTenantR
     public DeactivateTenantRequestBuilder WithDefaults()
     {
         return WithRandomTenantId();
+    }
+
+    public DeactivateTenantRequestBuilder WithTenantId(Guid value)
+    {
+        TenantId = value;
+        return this;
     }
 
     #region Domain Helpers
@@ -35,6 +45,11 @@ public partial class DeactivateTenantRequestBuilder : IBuilder<DeactivateTenantR
     public DeactivateTenantRequestBuilder WithEmptyTenantId()
     {
         return WithTenantId(Guid.Empty);
+    }
+
+    public DeactivateTenantRequest Build()
+    {
+        return new DeactivateTenantRequest(TenantId);
     }
 
     public static implicit operator DeactivateTenantRequest(DeactivateTenantRequestBuilder builder)

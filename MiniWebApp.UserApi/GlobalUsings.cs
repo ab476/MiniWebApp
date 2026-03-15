@@ -12,5 +12,5 @@ global using MiniWebApp.Core.Auth;
 
 // Domain Models & Services
 global using MiniWebApp.UserApi.Domain.Models;
-global using MiniWebApp.UserApi.Services;
 global using MiniWebApp.UserApi.Models.Tenants;
+global using MiniWebApp.UserApi.Models;

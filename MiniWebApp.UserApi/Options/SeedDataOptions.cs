@@ -1,10 +1,13 @@
-﻿namespace MiniWebApp.UserApi.Options;
+﻿using MiniWebApp.Core.Utilities;
+
+namespace MiniWebApp.UserApi.Options;
 
 public sealed class SeedDataOptions
 {
     public List<TenantSeed> Tenants { get; init; } = [];
     public List<RoleSeed> Roles { get; init; } = [];
     public List<UserSeed> Users { get; init; } = [];
+    public bool Enabled { get; init; } = true;
 }
 
 public sealed class TenantSeed
@@ -16,6 +19,16 @@ public sealed class TenantSeed
 public sealed class RoleSeed
 {
     public string Name { get; init; } = default!;
+    public string RoleCode
+    {
+        get
+        {
+            if (!string.IsNullOrWhiteSpace(field)) return field;
+
+            return field = RoleCodeFormatter.Format(Name);
+        }
+        init => field = value;
+    }
     public bool IncludeAll { get; init; } = false;
     public List<string> Permissions { get; init; } = [];
 }

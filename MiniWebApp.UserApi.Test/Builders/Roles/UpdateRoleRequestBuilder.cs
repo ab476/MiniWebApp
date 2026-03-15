@@ -1,53 +1,77 @@
-﻿using MiniWebApp.UserApi.Models.Roles;
+﻿namespace MiniWebApp.UserApi.Test.Builders.Roles;
 
-namespace MiniWebApp.UserApi.Test.Builders;
-
-[BuilderFor(typeof(UpdateRoleRequest))]
 public partial class UpdateRoleRequestBuilder : IBuilder<UpdateRoleRequest, UpdateRoleRequestBuilder>
 {
-    /// <summary>
-    /// Returns a valid UpdateRoleRequest with randomized data.
-    /// </summary>
+    private string _roleCode = "DEFAULT_CODE";
+    private string _displayName = "Default Name";
+    private Guid _tenantId = Guid.NewGuid();
+    //private string? _description = "Default Description";
+
     public static UpdateRoleRequestBuilder Default => new UpdateRoleRequestBuilder().WithDefaults();
 
-    /// <summary>
-    /// Sets defaults that represent a typical, valid update operation.
-    /// </summary>
     public UpdateRoleRequestBuilder WithDefaults()
     {
-        return WithRandomName()
-            .WithDescription("Updated role description content.");
+        return WithRandomName();
+            //.WithDescription("Updated role description content."); // This now works
+    }
+
+    //// 2. Added the missing method
+    //public UpdateRoleRequestBuilder WithDescription(string? description)
+    //{
+    //    _description = description;
+    //    return this;
+    //}
+
+    public UpdateRoleRequestBuilder WithDisplayName(string displayName)
+    {
+        _displayName = displayName;
+        return this;
+    }
+
+    // Example Build method (assuming your IBuilder interface requires it)
+    public UpdateRoleRequest Build()
+    {
+        //return new UpdateRoleRequest(_roleCode, _name, _description);
+        return new UpdateRoleRequest(_roleCode, _displayName, _tenantId);
+
     }
 
     #region Domain Helpers
 
-    /// <summary>
-    /// Generates a randomized name to simulate an edit.
-    /// </summary>
     public UpdateRoleRequestBuilder WithRandomName()
     {
         var adjectives = new[] { "Modified", "Enhanced", "Legacy", "Primary" };
         var titles = new[] { "Access", "Profile", "Member", "Supervisor" };
-
         var name = $"{adjectives[Random.Shared.Next(adjectives.Length)]} {titles[Random.Shared.Next(titles.Length)]}";
 
-        return WithName(name);
+        return WithDisplayName(name);
     }
 
-    /// <summary>
-    /// Sets the description to null, useful for testing the clearing of a field.
-    /// </summary>
-    public UpdateRoleRequestBuilder WithNullDescription()
+    public UpdateRoleRequestBuilder WithTenantId(Guid? tenantId = null)
     {
-        return WithDescription((string?)null);
+        _tenantId = tenantId ?? Guid.NewGuid();
+        return this;
+    }
+    /// <summary>
+    /// Sets a specific RoleCode.
+    /// </summary>
+    public UpdateRoleRequestBuilder WithRoleCode(string roleCode)
+    {
+        _roleCode = roleCode;
+        return this;
     }
 
     /// <summary>
-    /// Sets an empty name to trigger "Name is Required" validation during an update.
+    /// Generates a randomized RoleCode (e.g., "ROLE_A1B2C3").
     /// </summary>
+    public UpdateRoleRequestBuilder WithRandomRoleCode()
+    {
+        var randomSuffix = Guid.NewGuid().ToString("N")[..6].ToUpper();
+        return WithRoleCode($"ROLE_{randomSuffix}");
+    }
     public UpdateRoleRequestBuilder WithInvalidEmptyName()
     {
-        return WithName(string.Empty);
+        return WithDisplayName(string.Empty);
     }
 
     public static implicit operator UpdateRoleRequest(UpdateRoleRequestBuilder builder)

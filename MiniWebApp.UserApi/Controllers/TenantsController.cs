@@ -4,7 +4,7 @@ namespace MiniWebApp.UserApi.Controllers;
 
 [ApiController]
 [Route("api/tenants")]
-public class TenantsController(ITenantRepository tenantService) : ApiControllerBase
+public class TenantsController(ITenantRepository tenantService, ITenantQueries tenantQueries) : ApiControllerBase
 {
     [HttpGet("{id:guid}")]
     [Authorize(Policy = AppPermissions.Tenants.Read)]
@@ -12,7 +12,7 @@ public class TenantsController(ITenantRepository tenantService) : ApiControllerB
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<Outcome<TenantResponse>> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        return await tenantService.GetByIdAsync(id, ct);
+        return await tenantQueries.GetByIdAsync(id, ct);
     }
 
     [HttpGet]
@@ -23,7 +23,7 @@ public class TenantsController(ITenantRepository tenantService) : ApiControllerB
         [FromQuery] int pageSize = 20,
         CancellationToken ct = default)
     {
-        return await tenantService.GetPagedAsync(page, pageSize, ct);
+        return await tenantQueries.GetPagedAsync(page, pageSize, ct);
     }
 
     [HttpPost]

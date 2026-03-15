@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using MiniWebApp.UserApi.Test.Builders;
 
 namespace MiniWebApp.UserApi.Test.Services.Repositories;
 
@@ -15,26 +14,22 @@ public class RoleQueriesTests(PostgresContainerFixture fixture)
     public async Task GetByIdAsync_WhenIdExists_ReturnsRole()
     {
         // Arrange
-        var targetId = Guid.NewGuid();
-        await SeedRoleAsync(b => b.WithId(targetId));
+        var role = await SeedRoleAsync(b => b.WithRandomRoleCode());
 
         // Act
-        var result = await Queries.GetByIdAsync(targetId, CancellationToken);
+        var result = await Queries.GetByRoleCodeAsync(role.RoleCode, CancellationToken);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value!.Id.Should().Be(targetId);
+        result.Value!.RoleCode.Should().Be(role.RoleCode);
         result.StatusCode.Should().Be(StatusCodes.Status200OK);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenIdDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
-        var nonExistentId = Guid.NewGuid();
-
         // Act
-        var result = await Queries.GetByIdAsync(nonExistentId, CancellationToken);
+        var result = await Queries.GetByRoleCodeAsync("NonExistentRole", CancellationToken);
 
         // Assert
         result.IsSuccess.Should().BeFalse();

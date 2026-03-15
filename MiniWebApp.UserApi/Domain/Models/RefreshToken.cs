@@ -1,4 +1,6 @@
-﻿namespace MiniWebApp.UserApi.Domain.Models;
+﻿using System.Net;
+
+namespace MiniWebApp.UserApi.Domain.Models;
 
 public class RefreshToken
 {
@@ -15,7 +17,7 @@ public class RefreshToken
 
     public Guid? ReplacedByTokenId { get; set; }
 
-    public string? CreatedByIp { get; set; }
+    public IPAddress? CreatedByIp { get; set; }
 
     public User User { get; set; } = default!;
     public RefreshToken? ReplacedByToken { get; set; }

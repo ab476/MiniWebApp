@@ -2,7 +2,6 @@
 using MiniWebApp.Core.Common;
 using MiniWebApp.Core.Models;
 using MiniWebApp.UserApi.Infrastructure.Serialization;
-using MiniWebApp.UserApi.Models.Permissions;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -24,7 +23,7 @@ public class PermissionsControllerTests(PostgresContainerFixture fixture)
 
         // Assert: Output
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var result = await response.DeserializePagedResponseAsync<PermissionResponse>(ct);
+        var result = await response.DeserializePagedResponseAsync<ClaimResponse>(ct);
         
         result!.IsSuccess.Should().BeTrue();
         result.Value!.Items.Should().NotBeEmpty();

@@ -13,12 +13,10 @@ public partial class RoleBuilder : IBuilder<Role, RoleBuilder>
     /// </summary>
     public RoleBuilder WithDefaults()
     {
-        return WithId(Guid.NewGuid())
+        return WithRandomRoleCode()
             .WithTenantId(Guid.Empty)
-            .WithRandomName()
-            .WithDescription("A standard test role.")
+            .WithRandomRoleCode()
             .WithCreatedAt(DateTime.UtcNow)
-            .WithRolePermissions([])
             .WithUserRoles([]);
     }
 
@@ -27,23 +25,12 @@ public partial class RoleBuilder : IBuilder<Role, RoleBuilder>
     /// <summary>
     /// Sets the Name and automatically handles the NormalizedName (UPPERCASE).
     /// </summary>
-    public RoleBuilder WithRandomName()
+    public RoleBuilder WithRandomRoleCode()
     {
         var roles = new[] { "Manager", "Editor", "Viewer", "Auditor", "Contributor" };
         var name = $"{roles[Random.Shared.Next(roles.Length)]}_{Guid.NewGuid().ToString()[..4]}";
 
-        return WithName(name)
-              .WithNormalizedName(name.ToUpperInvariant());
-    }
-
-    /// <summary>
-    /// Specifically configures the role as an Administrator.
-    /// </summary>
-    public RoleBuilder AsAdmin()
-    {
-        return WithName("Administrator")
-              .WithNormalizedName("ADMINISTRATOR")
-              .WithDescription("Full system access.");
+        return WithRoleCode(name);
     }
 
     /// <summary>
@@ -62,6 +49,7 @@ public partial class RoleBuilder : IBuilder<Role, RoleBuilder>
         return WithTenant(tenant)
               .WithTenantId(tenant.Id);
     }
+
 
     public static implicit operator Role(RoleBuilder builder)
     {

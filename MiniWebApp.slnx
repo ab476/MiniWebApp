@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/Aspire/">
+    <Project Path="AppHost.MongoDB/AppHost.MongoDB.csproj" Id="522901a9-f9c4-48f8-8fad-f6d955c80001" />
     <Project Path="Aspire.Elasticsearch/Aspire.Elasticsearch.AppHost/Aspire.Elasticsearch.csproj" Id="59de8612-618d-476e-9f7c-cdde416143c4" />
     <Project Path="Aspire.Elasticsearch/Aspire.Elasticsearch.ServiceDefaults/Aspire.Elasticsearch.ServiceDefaults.csproj" />
     <Project Path="MiniWebApp/MiniWebApp.AppHost/MiniWebApp.AppHost.csproj" Id="aed398a6-ceb4-43f1-bb13-f4f9fcffb222" />
@@ -25,7 +26,6 @@
     <Project Path="MiniWebApp.UserApi.Test/MiniWebApp.UserApi.Test.csproj" Id="0c208ad6-5185-49f8-bed3-3c657722700d" />
     <Project Path="MiniWebApp.UserApi/MiniWebApp.UserApi.csproj" />
   </Folder>
-  <Project Path="AppHost.MongoDB/AppHost.MongoDB.csproj" Id="522901a9-f9c4-48f8-8fad-f6d955c80001" />
   <Project Path="MiniWebApp.ReactApp/miniwebapp.reactapp.esproj">
     <Build />
     <Deploy />

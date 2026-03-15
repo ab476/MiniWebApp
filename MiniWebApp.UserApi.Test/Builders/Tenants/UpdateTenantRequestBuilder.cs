@@ -1,12 +1,16 @@
-﻿using MiniWebApp.UserApi.Models.Tenants;
-
-namespace MiniWebApp.UserApi.Test.Builders.Tenants;
+﻿namespace MiniWebApp.UserApi.Test.Builders.Tenants;
 
 
-
-[BuilderFor(typeof(UpdateTenantRequest))]
 public partial class UpdateTenantRequestBuilder : IBuilder<UpdateTenantRequest, UpdateTenantRequestBuilder>
 {
+    private string Name { get; set; }
+    private string? Domain { get; set; }
+
+    public UpdateTenantRequestBuilder()
+    {
+        Name = string.Empty;
+        Domain = null;
+    }
     /// <summary>
     /// Returns a valid update request with randomized data.
     /// </summary>
@@ -30,7 +34,6 @@ public partial class UpdateTenantRequestBuilder : IBuilder<UpdateTenantRequest, 
     {
         var prefixes = new[] { "Updated", "New", "Revised", "Modern" };
         var randomName = $"{prefixes[Random.Shared.Next(prefixes.Length)]} {Guid.NewGuid().ToString()[..6]}";
-
         return WithName(randomName);
     }
 
@@ -61,10 +64,25 @@ public partial class UpdateTenantRequestBuilder : IBuilder<UpdateTenantRequest, 
         return WithName(string.Empty);
     }
 
+    public UpdateTenantRequestBuilder WithName(string name)
+    {
+        Name = name;
+        return this;
+    }
+
+    public UpdateTenantRequestBuilder WithDomain(string? domain)
+    {
+        Domain = domain;
+        return this;
+    }
+    public UpdateTenantRequest Build()
+    {
+        return new UpdateTenantRequest(Name, Domain);
+    }
+
     public static implicit operator UpdateTenantRequest(UpdateTenantRequestBuilder builder)
     {
         return builder.Build();
     }
-
-    #endregion
+    #endregion 
 }

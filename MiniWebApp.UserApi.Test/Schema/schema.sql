@@ -1,3 +1,11 @@
+CREATE TABLE public.claims (
+    claim_code character varying(50) NOT NULL,
+    description character varying(500),
+    category character varying(50) NOT NULL,
+    CONSTRAINT pk_claims PRIMARY KEY (claim_code)
+);
+
+
 CREATE TABLE public.outbox_messages (
     id uuid NOT NULL,
     aggregate_type character varying(200),
@@ -8,15 +16,6 @@ CREATE TABLE public.outbox_messages (
     processed_on timestamp with time zone,
     error text,
     CONSTRAINT pk_outbox_messages PRIMARY KEY (id)
-);
-
-
-CREATE TABLE public.permissions (
-    id uuid NOT NULL,
-    code character varying(150) NOT NULL,
-    description text,
-    category character varying(100),
-    CONSTRAINT pk_permissions PRIMARY KEY (id)
 );
 
 
@@ -48,13 +47,12 @@ CREATE TABLE public.audit_logs (
 
 
 CREATE TABLE public.roles (
-    id uuid NOT NULL,
     tenant_id uuid NOT NULL,
-    name character varying(150) NOT NULL,
-    normalized_name character varying(150) NOT NULL,
-    description text,
-    created_at timestamp with time zone NOT NULL,
-    CONSTRAINT pk_roles PRIMARY KEY (id),
+    role_code character varying(150) NOT NULL,
+    display_name character varying(250),
+    created_at timestamp with time zone NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    created_by uuid,
+    CONSTRAINT pk_roles PRIMARY KEY (tenant_id, role_code),
     CONSTRAINT fk_roles_tenant FOREIGN KEY (tenant_id) REFERENCES tenants (id) ON DELETE RESTRICT
 );
 
@@ -81,12 +79,13 @@ CREATE TABLE public.users (
 );
 
 
-CREATE TABLE public.role_permissions (
-    role_id uuid NOT NULL,
-    permission_id uuid NOT NULL,
-    CONSTRAINT pk_role_permissions PRIMARY KEY (role_id, permission_id),
-    CONSTRAINT fk_role_permissions_permission FOREIGN KEY (permission_id) REFERENCES public.permissions (id) ON DELETE CASCADE,
-    CONSTRAINT fk_role_permissions_role FOREIGN KEY (role_id) REFERENCES public.roles (id) ON DELETE CASCADE
+CREATE TABLE public.role_claims (
+    tenant_id uuid NOT NULL,
+    role_code character varying(50) NOT NULL,
+    claim_code character varying(50) NOT NULL,
+    CONSTRAINT pk_role_claims PRIMARY KEY (tenant_id, role_code, claim_code),
+    CONSTRAINT fk_role_claims_claim FOREIGN KEY (claim_code) REFERENCES public.claims (claim_code) ON DELETE CASCADE,
+    CONSTRAINT fk_role_claims_role FOREIGN KEY (tenant_id, role_code) REFERENCES public.roles (tenant_id, role_code) ON DELETE CASCADE
 );
 
 
@@ -95,7 +94,7 @@ CREATE TABLE public.login_history (
     user_id uuid NOT NULL,
     tenant_id uuid NOT NULL,
     login_time timestamp with time zone NOT NULL,
-    ip_address character varying(100),
+    ip_address character varying(45),
     device_info text,
     location character varying(200),
     is_successful boolean NOT NULL,
@@ -108,12 +107,12 @@ CREATE TABLE public.login_history (
 CREATE TABLE public.refresh_tokens (
     id uuid NOT NULL,
     user_id uuid NOT NULL,
-    token_hash character varying(512) NOT NULL,
+    token_hash bytea NOT NULL,
     expires_at timestamp with time zone NOT NULL,
     created_at timestamp with time zone NOT NULL,
     revoked_at timestamp with time zone,
     replaced_by_token_id uuid,
-    created_by_ip character varying(100),
+    created_by_ip inet,
     CONSTRAINT pk_refresh_tokens PRIMARY KEY (id),
     CONSTRAINT fk_refresh_tokens_replaced_by FOREIGN KEY (replaced_by_token_id) REFERENCES public.refresh_tokens (id) ON DELETE SET NULL,
     CONSTRAINT fk_refresh_tokens_user FOREIGN KEY (user_id) REFERENCES public.users (id) ON DELETE CASCADE
@@ -122,9 +121,10 @@ CREATE TABLE public.refresh_tokens (
 
 CREATE TABLE public.user_roles (
     user_id uuid NOT NULL,
-    role_id uuid NOT NULL,
-    CONSTRAINT pk_user_roles PRIMARY KEY (user_id, role_id),
-    CONSTRAINT fk_user_roles_role FOREIGN KEY (role_id) REFERENCES public.roles (id) ON DELETE CASCADE,
+    role_code character varying(150) NOT NULL,
+    tenant_id uuid NOT NULL,
+    CONSTRAINT pk_user_roles PRIMARY KEY (user_id, role_code, tenant_id),
+    CONSTRAINT fk_user_roles_role FOREIGN KEY (tenant_id, role_code) REFERENCES public.roles (tenant_id, role_code) ON DELETE CASCADE,
     CONSTRAINT fk_user_roles_user FOREIGN KEY (user_id) REFERENCES public.users (id) ON DELETE CASCADE
 );
 
@@ -147,31 +147,28 @@ CREATE INDEX ix_login_history_user_id ON public.login_history (user_id);
 CREATE INDEX ix_outbox_messages_processed_on ON public.outbox_messages (processed_on);
 
 
-CREATE UNIQUE INDEX ux_permissions_code ON public.permissions (code);
-
-
 CREATE INDEX ix_refresh_tokens_expires_at ON public.refresh_tokens (expires_at);
 
 
 CREATE INDEX "IX_refresh_tokens_replaced_by_token_id" ON public.refresh_tokens (replaced_by_token_id);
 
 
+CREATE UNIQUE INDEX ix_refresh_tokens_token_hash ON public.refresh_tokens (token_hash);
+
+
 CREATE INDEX ix_refresh_tokens_user_id ON public.refresh_tokens (user_id);
 
 
-CREATE INDEX "IX_role_permissions_permission_id" ON public.role_permissions (permission_id);
+CREATE INDEX "IX_role_claims_claim_code" ON public.role_claims (claim_code);
 
 
 CREATE INDEX ix_roles_tenant_id ON public.roles (tenant_id);
 
 
-CREATE UNIQUE INDEX ux_roles_tenant_normalized_name ON public.roles (tenant_id, normalized_name);
-
-
 CREATE UNIQUE INDEX ux_tenants_domain ON tenants (domain);
 
 
-CREATE INDEX "IX_user_roles_role_id" ON public.user_roles (role_id);
+CREATE INDEX "IX_user_roles_tenant_id_role_code" ON public.user_roles (tenant_id, role_code);
 
 
 CREATE INDEX ix_users_tenant_id ON public.users (tenant_id);

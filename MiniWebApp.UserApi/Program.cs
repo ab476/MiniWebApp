@@ -21,7 +21,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddApplicationAuthorization();
 
 builder
-    .AddDatabaseSeeding<User>()
+    .AddDatabaseSeeding()
     .AddSecurity()
     .AddCustomSerialization();
 
@@ -37,10 +37,13 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 
 builder.Services
+    .AddScoped<IRequestContext, OperationalContext>()
     .AddScoped<ITenantRepository, TenantRepository>()
+    .AddScoped<ITenantQueries, TenantQueries>()
     .AddScoped<IRoleRepository, RoleRepository>()
+    .AddScoped<IUserRoleRepository, UserRoleRepository>()
     .AddScoped<IRoleQueries, RoleQueries>()
-    .AddScoped<IPermissionQueries, PermissionQueries>();
+    .AddScoped<IClaimQueries, ClaimQueries>();
 builder.AddNpgsqlDbContext<UserDbContext>("userdb");
 builder.Services
     .AddValidatorsFromAssemblyContaining<Program>();

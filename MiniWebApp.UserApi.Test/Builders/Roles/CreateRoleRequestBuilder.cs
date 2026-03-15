@@ -1,70 +1,74 @@
-﻿using MiniWebApp.UserApi.Models.Roles;
+﻿namespace MiniWebApp.UserApi.Test.Builders.Roles;
 
-namespace MiniWebApp.UserApi.Test.Builders;
-
-
-
-[BuilderFor(typeof(CreateRoleRequest))]
 public partial class CreateRoleRequestBuilder : IBuilder<CreateRoleRequest, CreateRoleRequestBuilder>
 {
-    /// <summary>
-    /// Returns a valid CreateRoleRequest with a random TenantId and Name.
-    /// </summary>
+    private string _roleCode = "DEFAULT_CODE";
+    private string _displayName = "Default Name";
+    //private string? _description = "Initial role description.";
+    private Guid _tenantId = Guid.Empty; // Kept for logic, though not in the record yet
+
     public static CreateRoleRequestBuilder Default => new CreateRoleRequestBuilder().WithDefaults();
 
-    /// <summary>
-    /// Sets up the basic requirements for a successful role creation.
-    /// </summary>
     public CreateRoleRequestBuilder WithDefaults()
     {
-        return WithTenantId(Guid.Empty)
-            .WithRandomName()
-            .WithDescription("Initial role description.");
+        return WithRandomRoleCode()
+            .WithRandomName();
+        //.WithDescription("Initial role description.");
+    }
+
+    public CreateRoleRequestBuilder WithRoleCode(string roleCode)
+    {
+        _roleCode = roleCode;
+        return this;
+    }
+
+    public CreateRoleRequestBuilder WithDisplayName(string displayName)
+    {
+        _displayName = displayName;
+        return this;
+    }
+
+    //public CreateRoleRequestBuilder WithDescription(string? description)
+    //{
+    //    _description = description;
+    //    return this;
+    //}
+
+    public CreateRoleRequestBuilder WithTenantId(Guid tenantId)
+    {
+        _tenantId = tenantId;
+        return this;
+    }
+
+    public CreateRoleRequest Build()
+    {
+        return new CreateRoleRequest(_roleCode, _displayName, _tenantId);
+
     }
 
     #region Domain Helpers
 
-    /// <summary>
-    /// Assigns a random, realistic role name.
-    /// </summary>
+    public CreateRoleRequestBuilder WithRandomRoleCode()
+    {
+        return WithRoleCode($"ROLE_{Guid.NewGuid().ToString("N")[..6].ToUpper()}");
+    }
+
     public CreateRoleRequestBuilder WithRandomName()
     {
         var prefixes = new[] { "Global", "Regional", "Department", "Project" };
         var roles = new[] { "Lead", "Coordinator", "Specialist", "Analyst" };
-
         var name = $"{prefixes[Random.Shared.Next(prefixes.Length)]} {roles[Random.Shared.Next(roles.Length)]}";
 
-        return WithName(name);
+        return WithDisplayName(name);
     }
 
-    /// <summary>
-    /// Helper for testing multi-tenancy isolation.
-    /// </summary>
-    public CreateRoleRequestBuilder ForTenant(Guid tenantId)
-    {
-        return WithTenantId(tenantId);
-    }
+    public CreateRoleRequestBuilder ForTenant(Guid tenantId) => WithTenantId(tenantId);
 
-    /// <summary>
-    /// Sets an empty name to test "Name is Required" validation rules.
-    /// </summary>
-    public CreateRoleRequestBuilder WithEmptyName()
-    {
-        return WithName(string.Empty);
-    }
+    public CreateRoleRequestBuilder WithEmptyName() => WithDisplayName(string.Empty);
 
-    /// <summary>
-    /// Sets an empty Guid for the TenantId to test relationship validation.
-    /// </summary>
-    public CreateRoleRequestBuilder WithEmptyTenantId()
-    {
-        return WithTenantId(Guid.Empty);
-    }
+    public CreateRoleRequestBuilder WithEmptyTenantId() => WithTenantId(Guid.Empty);
 
-    public static implicit operator CreateRoleRequest(CreateRoleRequestBuilder builder)
-    {
-        return builder.Build();
-    }
+    public static implicit operator CreateRoleRequest(CreateRoleRequestBuilder builder) => builder.Build();
 
     #endregion
 }

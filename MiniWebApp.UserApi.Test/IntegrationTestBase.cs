@@ -114,7 +114,6 @@ public abstract class IntegrationTestBase : IDisposable
             configure(builder);
             var role = builder.Build();
 
-            // 2. Automatically assign to the cached tenant if the ID is empty
             if (role.TenantId == Guid.Empty)
             {
                 role.TenantId = CachedTenantId.Value;

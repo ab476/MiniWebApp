@@ -2,18 +2,12 @@
 
 public class Role
 {
-    public Guid Id { get; set; }
-
     public Guid TenantId { get; set; }
-
-    public string Name { get; set; } = default!;
-    public string NormalizedName { get; set; } = default!;
-
-    public string? Description { get; set; }
-
+    public string RoleCode { get; set; } = default!;
+    public string? DisplayName { get; set; }
     public DateTime CreatedAt { get; set; }
-
+    public Guid? CreatedBy { get; set; }   
     public Tenant Tenant { get; set; } = default!;
-    public ICollection<RolePermission> RolePermissions { get; set; } = [];
+    public ICollection<RoleClaim> RoleClaims { get; set; } = [];
     public ICollection<UserRole> UserRoles { get; set; } = [];
 }

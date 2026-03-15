@@ -1,7 +1,5 @@
 ﻿using MiniWebApp.Core.Models;
 using MiniWebApp.Core.Security;
-using MiniWebApp.UserApi.Models.Permissions;
-using MiniWebApp.UserApi.Models.Roles;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
@@ -18,18 +16,18 @@ namespace MiniWebApp.UserApi.Infrastructure.Serialization;
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(JwtUser))]
 [JsonSerializable(typeof(CreateRoleRequest))]
-[JsonSerializable(typeof(PermissionResponse))]
-[JsonSerializable(typeof(PagedResponse<PermissionResponse>))]
+[JsonSerializable(typeof(ClaimResponse))]
+[JsonSerializable(typeof(PagedResponse<ClaimResponse>))]
 // Add any other DTOs or Records you return from your API
 
 // 1. Response Wrappers (including generic versions)
-[JsonSerializable(typeof(Outcome<PermissionResponse>))]
-[JsonSerializable(typeof(Outcome<PagedResponse<PermissionResponse>>))]
-[JsonSerializable(typeof(PagedResponse<PermissionResponse>))]
+[JsonSerializable(typeof(Outcome<ClaimResponse>))]
+[JsonSerializable(typeof(Outcome<PagedResponse<ClaimResponse>>))]
+[JsonSerializable(typeof(PagedResponse<ClaimResponse>))]
 
 // 2. Specific Permission DTOs
-[JsonSerializable(typeof(PermissionResponse))]
-[JsonSerializable(typeof(GetPermissionRequest))]
+[JsonSerializable(typeof(ClaimResponse))]
+[JsonSerializable(typeof(GetClaimRequest))]
 
 // 3. Query Models (if they are bound from JSON, though PagedRequest is usually [FromQuery])
 [JsonSerializable(typeof(PagedRequest))]

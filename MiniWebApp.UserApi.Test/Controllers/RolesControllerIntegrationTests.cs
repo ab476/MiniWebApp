@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MiniWebApp.Core.Auth;
 using MiniWebApp.UserApi.Domain;
-using MiniWebApp.UserApi.Models.Roles;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -19,7 +18,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
     {
         var client = GetAnonymousClient();
 
-        var response = await client.GetAsync($"{BaseUrl}/{Guid.NewGuid()}");
+        var response = await client.GetAsync($"{BaseUrl}/{Guid.NewGuid()}", CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -29,7 +28,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
     {
         var client = AuthClientBuilder().Build();
 
-        var response = await client.GetAsync($"{BaseUrl}/{Guid.NewGuid()}");
+        var response = await client.GetAsync($"{BaseUrl}/{Guid.NewGuid()}", CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
@@ -37,20 +36,20 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
     [Fact]
     public async Task GetById_Should_Return_200_When_Valid_And_Authorized()
     {
-        var roleId = await CreateRoleAsync();
+        var role = await SeedRoleAsync();
 
         var client = AuthClientBuilder()
             .WithPermissions(AppPermissions.Roles.Read)
             .Build();
 
-        var response = await client.GetAsync($"{BaseUrl}/{roleId}");
+        var response = await client.GetAsync($"{BaseUrl}/{role.RoleCode}", CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var result = await response.Content.ReadFromJsonAsync<RoleResponse>();
+        var result = await response.Content.ReadFromJsonAsync<RoleResponse>(CancellationToken);
 
         result.Should().NotBeNull();
-        result!.Id.Should().Be(roleId);
+        result!.RoleCode.Should().Be(role.RoleCode);
     }
     [Fact]
     public async Task GetById_Should_Return_404_When_Not_Found()
@@ -59,7 +58,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
             .WithPermissions(AppPermissions.Roles.Read)
             .Build();
 
-        var response = await client.GetAsync($"{BaseUrl}/{Guid.NewGuid()}");
+        var response = await client.GetAsync($"{BaseUrl}/{Guid.NewGuid()}", CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -70,7 +69,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
             .WithPermissions(AppPermissions.Roles.Read)
             .Build();
 
-        HttpResponseMessage response = await client.GetAsync($"{BaseUrl}/invalid-guid");
+        HttpResponseMessage response = await client.GetAsync($"{BaseUrl}/invalid-guid", CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -80,7 +79,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
     {
         var client = GetAnonymousClient();
 
-        var response = await client.PostAsJsonAsync(BaseUrl, new { });
+        var response = await client.PostAsJsonAsync(BaseUrl, new { }, CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -96,7 +95,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
         {
             Name = "Admin",
             TenantId = Guid.NewGuid()
-        });
+        }, CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
@@ -112,7 +111,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
         {
             Name = "",
             TenantId = Guid.Empty
-        });
+        }, CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -133,14 +132,13 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
         {
             Name = "Admin",
             TenantId = tenantId
-        });
+        }, CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
 
-        var result = await response.Content.ReadFromJsonAsync<RoleResponse>();
-
+        var result = await response.Content.ReadFromJsonAsync<RoleResponse>(CancellationToken);
         result.Should().NotBeNull();
-        result!.Name.Should().Be("Admin");
+        result!.DisplayName.Should().Be("Admin");
     }
 
     [Fact]
@@ -157,7 +155,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
         {
             Name = "'; DROP TABLE Roles; --",
             TenantId = tenantId
-        });
+        }, CancellationToken);
 
         response.StatusCode.Should()
             .BeOneOf(HttpStatusCode.BadRequest, HttpStatusCode.Created);
@@ -165,7 +163,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
         using var scope = Factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<UserDbContext>();
 
-        var roles = await db.Roles.ToListAsync();
+        var roles = await db.Roles.ToListAsync(CancellationToken);
 
         roles.Should().NotBeNull(); // Table still accessible
     }
@@ -184,7 +182,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
         {
             Name = "<script>alert(1)</script>",
             TenantId = tenantId
-        });
+        }, CancellationToken);
 
         response.StatusCode.Should()
             .BeOneOf(HttpStatusCode.BadRequest, HttpStatusCode.Created);
@@ -201,11 +199,11 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
             .Build();
 
         var response = await client.GetAsync(
-            $"{BaseUrl}?tenantId={tenantId}&page=1&pageSize=10");
+            $"{BaseUrl}?tenantId={tenantId}&page=1&pageSize=10", CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var result = await response.Content.ReadFromJsonAsync<List<RoleResponse>>();
+        var result = await response.Content.ReadFromJsonAsync<List<RoleResponse>>(CancellationToken);
 
         result.Should().NotBeNull();
         result.Should().NotBeEmpty();
@@ -222,7 +220,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
 
         var response = await client.PutAsJsonAsync(
             $"{BaseUrl}/{roleId}",
-            new { Name = "Updated" });
+            new { Name = "Updated" }, CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
@@ -238,7 +236,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
 
         var response = await client.PutAsJsonAsync(
             $"{BaseUrl}/{roleId}",
-            new { Name = "Updated" });
+            new { Name = "Updated" }, CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -252,7 +250,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
             .WithPermissions(AppPermissions.Roles.Write)
             .Build();
 
-        var response = await client.DeleteAsync($"{BaseUrl}/{roleId}");
+        var response = await client.DeleteAsync($"{BaseUrl}/{roleId}", CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
@@ -266,7 +264,7 @@ public sealed class RolesControllerIntegrationTests(PostgresContainerFixture fix
             .WithPermissions(AppPermissions.Roles.Manage)
             .Build();
 
-        var response = await client.DeleteAsync($"{BaseUrl}/{roleId}");
+        var response = await client.DeleteAsync($"{BaseUrl}/{roleId}", CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }

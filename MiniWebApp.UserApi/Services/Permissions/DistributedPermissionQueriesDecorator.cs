@@ -1,82 +1,8 @@
 ﻿using MemoryPack;
 using Microsoft.Extensions.Caching.Distributed;
-using MiniWebApp.UserApi.Models.Permissions;
-using MiniWebApp.UserApi.Services.Repositories;
 using System.Text;
 
 namespace MiniWebApp.UserApi.Services.Permissions;
-
-public class DistributedPermissionQueriesDecorator(
-    IPermissionQueries inner,
-    IDistributedCache cache) : IPermissionQueries
-{
-    private const string CachePrefix = "perms";
-
-    public async Task<Outcome<PermissionResponse>> GetPermissionAsync(
-        GetPermissionRequest request,
-        CancellationToken ct)
-    {
-        // 1. Generate a unique key based on the provided identifier
-        // Example: "perm:id:guid-value" or "perm:code:roles.read"
-        string identifier = request.Id.HasValue && request.Id != Guid.Empty
-            ? $"id:{request.Id}"
-            : $"code:{request.Code?.ToLowerInvariant().Trim()}";
-
-        string key = $"{CachePrefix}:{identifier}";
-
-        // 2. Check Cache
-        byte[]? cachedBytes = await cache.GetAsync(key, ct);
-        if (cachedBytes is not null)
-        {
-            var cachedResponse = MemoryPackSerializer.Deserialize<PermissionResponse>(cachedBytes);
-            return (StatusCodes.Status200OK, cachedResponse!);
-        }
-
-        // 3. Fetch from DB (Inner Service)
-        var result = await inner.GetPermissionAsync(request, ct);
-
-        // 4. Cache the result if found
-        if (result.IsSuccess)
-        {
-            byte[] data = MemoryPackSerializer.Serialize(result.Value);
-
-            // Since permissions are "Read-Only" system data, 
-            // a longer expiration (like 24h) is often safer than 1h.
-            await cache.SetAsync(key, data, new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24),
-                SlidingExpiration = TimeSpan.FromHours(4)
-            }, ct);
-        }
-
-        return result;
-    }
-
-    public async Task<Outcome<PermissionResponse[]>> ListPermissions(CancellationToken ct)
-    {
-        string key = $"{CachePrefix}:list";
-
-        byte[]? cachedBytes = await cache.GetAsync(key, ct);
-        if (cachedBytes is not null)
-        {
-            var cachedPagedResponse = MemoryPackSerializer.Deserialize<PermissionResponse[]>(cachedBytes);
-            return (StatusCodes.Status200OK, cachedPagedResponse!);
-        }
-
-        var result = await inner.ListPermissions(ct);
-
-        if (result.IsSuccess)
-        {
-            byte[] data = MemoryPackSerializer.Serialize(result.Value);
-            await cache.SetAsync(key, data, new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
-            }, ct);
-        }
-
-        return result;
-    }
-}
 
 public interface ICacheService
 {

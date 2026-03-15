@@ -1,10 +1,16 @@
-﻿using MiniWebApp.UserApi.Models.Tenants;
+﻿namespace MiniWebApp.UserApi.Test.Builders.Tenants;
 
-namespace MiniWebApp.UserApi.Test.Builders.Tenants;
-
-[BuilderFor(typeof(CreateTenantRequest))]
 public partial class CreateTenantRequestBuilder : IBuilder<CreateTenantRequest, CreateTenantRequestBuilder>
 {
+    public CreateTenantRequestBuilder()
+    {
+        Name = string.Empty;
+        Domain = string.Empty;
+    }
+
+    private string Name { get; set; }
+    private string Domain { get; set; }
+
     /// <summary>
     /// Entry point for a standard, valid CreateTenantRequest.
     /// </summary>
@@ -52,6 +58,23 @@ public partial class CreateTenantRequestBuilder : IBuilder<CreateTenantRequest, 
     public CreateTenantRequestBuilder WithOverlyLongName()
     {
         return WithName(new string('A', 300));
+    }
+
+    public CreateTenantRequestBuilder WithName(string name)
+    {
+        Name = name;
+        return this;
+    }
+
+    public CreateTenantRequestBuilder WithDomain(string domain)
+    {
+        Domain = domain;
+        return this;
+    }
+
+    public CreateTenantRequest Build()
+    {
+        return new CreateTenantRequest(Name, Domain);
     }
 
     public static implicit operator CreateTenantRequest(CreateTenantRequestBuilder builder)
