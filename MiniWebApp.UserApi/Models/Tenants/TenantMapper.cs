@@ -1,4 +1,5 @@
-﻿using MiniWebApp.UserApi.Services.Repositories;
+﻿using MiniWebApp.UserApi.Infrastructure;
+using MiniWebApp.UserApi.Services.Repositories;
 using System.Linq.Expressions;
 
 namespace MiniWebApp.UserApi.Models.Tenants;
@@ -46,6 +47,46 @@ public static class TenantMapperExtensions
     {
         return CompiledMapper.Invoke(tenant);
     }
+    /// <summary>
+    /// Maps a <see cref="CreateTenantRequest"/> to a new <see cref="Tenant"/> entity.
+    /// </summary>
+    public static Tenant ToEntity(this CreateTenantRequest request, DateTime timeStamp)
+    {
+        return new Tenant
+        {
+            Id = Guid.NewGuid(),
+            Name = request.Name,
+            Domain = request.Domain,
+            IsActive = true,
+            CreatedAt = timeStamp
+        };
+    }
+    public static IAuditTask ToAuditRequest(this IEnumerable<Tenant> tenants, AuditAction action, Guid? userId, DateTime timestamp)
+    {
+        return AuditTask.Create(
+            entity: tenants.Select(tenant => new AuditTenantRequest(
+                TenantId: tenant.Id,
+                Name: tenant.Name,
+                Domain: tenant.Domain,
+                IsActive: tenant.IsActive
+            )).ToArray(),
+            action: action,
+            userId: userId,
+            timestamp: timestamp);
+    }
+    public static IAuditTask ToAuditRequest(this Tenant tenant, AuditAction action, Guid? userId)
+    {
+        return AuditTask.Create(
+            entity: new AuditTenantRequest(
+                TenantId: tenant.Id,
+                Name: tenant.Name,
+                Domain: tenant.Domain,
+                IsActive: tenant.IsActive
+            ),  
+            action: action,
+            userId: userId,
+            timestamp: tenant.UpdatedAt ?? tenant.CreatedAt);
+    }
 }
 
 /// <summary>
@@ -62,7 +103,8 @@ public static class UserMapperExtensions
             Email: user.Email,
             UserName: user.UserName,
             Status: user.Status,
-            CreatedAt: user.CreatedAt
+            CreatedAt: user.CreatedAt,
+            TenantId: user.TenantId
         );
 
     /// <summary>

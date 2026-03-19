@@ -1,45 +1,52 @@
-﻿//using Microsoft.AspNetCore.Identity.Data;
-//using MiniWebApp.UserApi.Services.Auth;
-//using LoginRequest = MiniWebApp.UserApi.Services.LoginRequest;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using MiniWebApp.Core.Security;
+using MiniWebApp.UserApi.Services.Auth;
+using System.Net;
 
-//namespace MiniWebApp.UserApi.Controllers;
+namespace MiniWebApp.UserApi.Controllers;
 
-//[ApiController]
-//[Route("api/auth")]
-//public class AuthController(AuthService authService) : ApiControllerBase
-//{
-//    [HttpPost("login")]
-//    public async Task<Outcome<AuthResponse>> LoginAsync([FromBody] LoginRequest request, CancellationToken ct)
-//    {
-//        string ipAddress = Request.Headers["X-Forwarded-For"].FirstOrDefault()
-//                           ?? HttpContext.Connection.RemoteIpAddress?.ToString()
-//                           ?? "Unknown";
+[Route("api/auth")]
+public class AuthController(IAuthService authService, IUserContext userContext) : ApiControllerBase
+{
+    [HttpPost("login")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    public async Task<Outcome<LoginResponse>> LoginAsync(
+        [FromBody] LoginRequest request,
+        CancellationToken ct = default)
+    {
+        // Extracting metadata for audit logging in AuthService
+        var ipAddress = HttpContext.Connection.RemoteIpAddress;
+        var deviceInfo = Request.Headers.UserAgent.ToString();
 
-//        string userAgent = Request.Headers.UserAgent.ToString();
+        return await authService.LoginAsync(request, ipAddress, deviceInfo, ct);
+    }
 
-//        var enrichedRequest = request with { IpAddress = ipAddress, DeviceInfo = userAgent };
+    [HttpPost("refresh-token")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(Outcome<LoginResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<Outcome<LoginResponse>> RefreshTokenAsync(
+        [FromBody] RefreshTokenRequest request,
+        CancellationToken ct = default)
+    {
+        var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-//        return await authService.LoginAsync(enrichedRequest, ct);
-//    }
+        return await authService.RefreshTokenAsync(request.RefreshToken, ipAddress, ct);
+    }
 
-//    [HttpPost("refresh")]
-//    [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
-//    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-//    public async Task<Outcome<AuthResponse>> RefreshAsync([FromBody] TokenRequest request)
-//    {
-//        return await authService.RefreshTokenAsync(request);
-//    }
+    [HttpPost("logout")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<Outcome> LogoutAsync(CancellationToken ct = default)
+    {
+        var userId = userContext.UserId;
 
-//    [HttpPost("logout")]
-//    [Authorize]
-//    public async Task<Outcome> LogoutAsync()
-//    {
-//        // Get UserId from ClaimsPrincipal (User.GetUserId() is a common extension)
-//        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-//        return await authService.LogoutAsync(userId);
-//    }
-//}
+        return await authService.LogoutAsync(userId, ct);
+    }
+}
 
-
-//public record TokenRequest(string AccessToken, string RefreshToken);
-//public record AuthResponse(string AccessToken, string RefreshToken, DateTime Expiry, UserDto User);
+// Supporting record for the refresh request body
+public record RefreshTokenRequest(string RefreshToken);

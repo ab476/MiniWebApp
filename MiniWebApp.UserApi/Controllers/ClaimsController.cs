@@ -12,10 +12,8 @@ public class ClaimsController(IClaimQueries queries) : ApiControllerBase
 
     [HttpGet("{claimCode}")]
     [Authorize(Policy = AppPermissions.Permissions.Read)]
-    public async Task<Outcome<ClaimResponse>> GetClaim(string claimCode, CancellationToken ct)
+    public async Task<Outcome<ClaimResponse>> GetClaim([FromRoute] GetClaimRequest request, CancellationToken ct)
     {
-        var request = new GetClaimRequest(claimCode);
-
         await ValidateAsync(request, ct);
 
         return await queries.GetClaimAsync(request, ct);

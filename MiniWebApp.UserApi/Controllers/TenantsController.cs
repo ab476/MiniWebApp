@@ -8,8 +8,6 @@ public class TenantsController(ITenantRepository tenantService, ITenantQueries t
 {
     [HttpGet("{id:guid}")]
     [Authorize(Policy = AppPermissions.Tenants.Read)]
-    [ProducesResponseType(typeof(TenantResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<Outcome<TenantResponse>> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         return await tenantQueries.GetByIdAsync(id, ct);
@@ -17,8 +15,7 @@ public class TenantsController(ITenantRepository tenantService, ITenantQueries t
 
     [HttpGet]
     [Authorize(Policy = AppPermissions.Tenants.Read)]
-    [ProducesResponseType(typeof(IReadOnlyList<TenantResponse>), StatusCodes.Status200OK)]
-    public async Task<Outcome<IReadOnlyList<TenantResponse>>> GetPagedAsync(
+    public async Task<Outcome<List<TenantResponse>>> GetPagedAsync(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         CancellationToken ct = default)
@@ -28,8 +25,6 @@ public class TenantsController(ITenantRepository tenantService, ITenantQueries t
 
     [HttpPost]
     [Authorize(Policy = AppPermissions.Tenants.Write)]
-    [ProducesResponseType(typeof(TenantResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<Outcome<TenantResponse>> CreateAsync(
         [FromBody] CreateTenantRequest request,
         CancellationToken ct = default)
@@ -54,8 +49,6 @@ public class TenantsController(ITenantRepository tenantService, ITenantQueries t
 
     [HttpPut("{tenantId:guid}")]
     [Authorize(Policy = AppPermissions.Tenants.Write)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<Outcome> UpdateAsync(
         Guid tenantId,
         [FromBody] UpdateTenantRequest request,
@@ -67,8 +60,6 @@ public class TenantsController(ITenantRepository tenantService, ITenantQueries t
 
     [HttpPost("{tenantId:guid}/activate")]
     [Authorize(Policy = AppPermissions.Tenants.Manage)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<Outcome> ActivateAsync([FromBody] ActivateTenantRequest request, CancellationToken ct = default)
     {
         await ValidateAsync(request, ct);
@@ -77,8 +68,6 @@ public class TenantsController(ITenantRepository tenantService, ITenantQueries t
 
     [HttpPost("{tenantId:guid}/deactivate")]
     [Authorize(Policy = AppPermissions.Tenants.Manage)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<Outcome> DeactivateAsync([FromBody] DeactivateTenantRequest request, CancellationToken ct = default)
     {
         await ValidateAsync(request, ct);
@@ -87,8 +76,6 @@ public class TenantsController(ITenantRepository tenantService, ITenantQueries t
 
     [HttpDelete("{tenantId:guid}")]
     [Authorize(Policy = AppPermissions.Tenants.Manage)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<Outcome> DeleteAsync(Guid tenantId, CancellationToken ct = default)
     {
         var outcome = await tenantService.DeleteAsync(tenantId, ct);

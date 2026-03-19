@@ -9,6 +9,9 @@
   <Folder Name="/Common/">
     <Project Path="MiniWebApp.Core/MiniWebApp.Core.csproj" Id="ba3816f1-2ccd-49d5-b639-15f8fc724b61" />
   </Folder>
+  <Folder Name="/Generators/">
+    <Project Path="Validators.Generators/Validators.Generators.csproj" />
+  </Folder>
   <Folder Name="/Redis/">
     <Project Path="AppHost.Redis/AppHost.Redis.csproj" Id="495409da-2258-4cd1-a586-e751d1e09ea8" />
     <Project Path="Redis.ConsoleApp/Redis.ConsoleApp.csproj" Id="098758c7-f523-470d-a08c-999901e5daf6" />

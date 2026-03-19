@@ -17,16 +17,16 @@ public sealed class RoleRepository(UserDbContext db, IRequestContext requestCont
     {
         if (!requestTenantId.HasValue || requestTenantId == ContextTenantId)
         {
-            return StatusCodes.Status200OK;
+            return Outcome.Success(StatusCodes.Status200OK);
         }
 
         if (!IsSuperAdmin)
         {
-            return ("Access Denied: You do not have permission to manage roles for another tenant.",
+            return Outcome.Failure("Access Denied: You do not have permission to manage roles for another tenant.",
                     StatusCodes.Status403Forbidden);
         }
 
-        return StatusCodes.Status200OK;
+        return Outcome.Success(StatusCodes.Status200OK);
     }
 
     /// <inheritdoc />
@@ -46,26 +46,26 @@ public sealed class RoleRepository(UserDbContext db, IRequestContext requestCont
         await db.Roles.AddAsync(role, ct);
         await db.SaveChangesAsync(ct);
 
-        return (StatusCodes.Status201Created, role.ToResponse());
+        return Outcome.Success(StatusCodes.Status201Created, role.ToResponse());
     }
 
     /// <inheritdoc />
     public async Task<Outcome<RoleResponse[]>> CreateBulkAsync(IEnumerable<CreateRoleRequest> requests, CancellationToken ct = default)
     {
         var requestList = requests.ToList();
-        if (requestList.Count == 0) return (StatusCodes.Status200OK, []);
+        if (requestList.Count == 0) return Outcome.Success(StatusCodes.Status200OK, Array.Empty<RoleResponse>());
 
         var targetTenantId = requestList[0].TenantId ?? ContextTenantId;
 
         if (targetTenantId != ContextTenantId && !IsSuperAdmin)
         {
-            return ("Access Denied: You do not have permission to manage roles for another tenant.",
+            return Outcome.Failure("Access Denied: You do not have permission to manage roles for another tenant.",
                     StatusCodes.Status403Forbidden);
         }
 
         if (requestList.Any(r => (r.TenantId ?? ContextTenantId) != targetTenantId))
         {
-            return ("Bulk operations across multiple different tenants are not permitted in a single request.",
+            return Outcome.Failure("Bulk operations across multiple different tenants are not permitted in a single request.",
                     StatusCodes.Status400BadRequest);
         }
 
@@ -75,12 +75,12 @@ public sealed class RoleRepository(UserDbContext db, IRequestContext requestCont
             RoleCode = request.RoleCode,
             DisplayName = request.DisplayName,
             CreatedAt = UtcNow
-        }).ToList();
+        }).ToArray();
 
         await db.Roles.AddRangeAsync(roles, ct);
         await db.SaveChangesAsync(ct);
 
-        return (StatusCodes.Status201Created, [.. roles.Select(r => r.ToResponse())]);
+        return Outcome.Success(StatusCodes.Status201Created, roles.Select(r => r.ToResponse()).ToArray());
     }
 
     /// <inheritdoc />
@@ -96,8 +96,8 @@ public sealed class RoleRepository(UserDbContext db, IRequestContext requestCont
                 .SetProperty(r => r.DisplayName, request.DisplayName), ct);
 
         return rows == 1
-            ? StatusCodes.Status200OK
-            : ("Role not found.", StatusCodes.Status404NotFound);
+            ? Outcome.Success(StatusCodes.Status200OK)
+            : Outcome.Failure("Role not found.", StatusCodes.Status404NotFound);
     }
 
     /// <inheritdoc />
@@ -112,7 +112,7 @@ public sealed class RoleRepository(UserDbContext db, IRequestContext requestCont
             .ExecuteDeleteAsync(ct);
 
         return rows == 1
-            ? StatusCodes.Status200OK
-            : ("Role not found.", StatusCodes.Status404NotFound);
+            ? Outcome.Success(StatusCodes.Status200OK)
+            : Outcome.Failure("Role not found.", StatusCodes.Status404NotFound);
     }
 }

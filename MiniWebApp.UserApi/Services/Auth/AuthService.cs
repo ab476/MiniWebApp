@@ -6,10 +6,13 @@ namespace MiniWebApp.UserApi.Services.Auth;
 
 public sealed class AuthService(
     IUserRepository userRepository,
+    IUserQueries userQueries,
     IRefreshTokenService refreshTokenService,
+    IUserRoleQueries userRoleQueries,
     IJwtTokenGenerator jwtTokenGenerator,
+    IRoleClaimQueries roleClaimQueries,
     ILoginHistoryRepository loginHistoryRepository,
-    ILogger<AuthService> logger)
+    ILogger<AuthService> logger) : IAuthService
 {
     public async Task<Outcome<LoginResponse>> LoginAsync(
         LoginRequest request,
@@ -25,7 +28,7 @@ public sealed class AuthService(
         {
             // Log failed attempt for security auditing
             await loginHistoryRepository.LogAsync(
-                new CreateLoginHistoryRequest(null, null, ipAddress, deviceInfo, "Unknown", false), 
+                new CreateLoginHistoryRequest(null, null, ipAddress, deviceInfo, "Unknown", false),
                 ct);
 
             return credentialsResult.ToFailure<LoginResponse>();
@@ -45,7 +48,7 @@ public sealed class AuthService(
             user.Username,
             user.TenantId,
             user.Roles,
-            []); // Add permissions if applicable
+            user.Permissions); // Add permissions if applicable
 
         var accessToken = jwtTokenGenerator.Generate(jwtUser);
 
@@ -73,20 +76,44 @@ public sealed class AuthService(
             return rotationResult.ToFailure<LoginResponse>();
         }
 
-        var newToken = rotationResult.Value;
+        var newToken = rotationResult.Value!;
 
         // 2. Fetch User to rebuild JWT claims
-        // Note: You might want a dedicated GetByIdAsync in UserRepository
-        // For now, we assume we need the user context to generate a valid JWT
-        // (Implementation detail: Ideally, the RotateAsync could return basic user info)
+        var userResponse = await userQueries.GetByIdAsync(newToken.UserId, ct);
+        if (!userResponse.IsSuccess)
+        {
+            logger.LogWarning("Failed to retrieve user {UserId} for refresh token rotation: {Reason}", newToken.UserId, userResponse.Error);
+            return userResponse.ToFailure<LoginResponse>();
+        }
+        var user = userResponse.Value!;
 
-        // ... Logic to fetch user roles/email ...
-        // var user = await userRepository.GetByIdAsync(newToken.UserId);
+        // Fetch user roles
+        var rolesOutcome = await userRoleQueries.GetRolesByUserAsync(user.Id, ct);
+        if (!rolesOutcome.IsSuccess)
+        {
+            logger.LogWarning("Failed to retrieve roles for user {UserId} during refresh token rotation: {Reason}", user.Id, rolesOutcome.Error);
+            return rolesOutcome.ToFailure<LoginResponse>();
+        }
+        var userRoles = rolesOutcome.Value.Select(r => r.RoleCode).ToArray();
+
+        // Fetch permissions based on roles
+        var permissionsOutcome = await roleClaimQueries.GetClaimsByRolesAsync(userRoles, ct);
+        if (!permissionsOutcome.IsSuccess)
+        {
+            logger.LogWarning("Failed to retrieve permissions for user {UserId} during refresh token rotation: {Reason}", user.Id, permissionsOutcome.Error);
+            return permissionsOutcome.ToFailure<LoginResponse>();
+        }
+        var userPermissions = permissionsOutcome.Value.Select(p => p.ClaimCode).ToArray();
 
         // 3. Generate new JWT
-        // (Simplified for brevity - use the user data fetched above)
-        var dummyJwtUser = new JwtUser(newToken.UserId, "", "", null, [], []);
-        var newAccessToken = jwtTokenGenerator.Generate(dummyJwtUser);
+        var jwtUser = new JwtUser(
+            user.Id,
+            user.Email,
+            user.UserName,
+            user.TenantId,
+            userRoles,
+            userPermissions);
+        var newAccessToken = jwtTokenGenerator.Generate(jwtUser);
 
         return (StatusCodes.Status200OK, new LoginResponse(
             newAccessToken,
@@ -100,7 +127,10 @@ public sealed class AuthService(
         // so the user cannot get a new Access Token.
         await refreshTokenService.RevokeAllForUserAsync(userId, ct);
 
-        logger.LogInformation("User {UserId} logged out. All sessions revoked.", userId);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("User {UserId} logged out. All sessions revoked.", userId);
+        }
         return StatusCodes.Status200OK;
     }
 }

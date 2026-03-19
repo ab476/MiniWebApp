@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MiniWebApp.UserApi.Test.Builders.Tenants;
 

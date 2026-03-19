@@ -6,7 +6,7 @@ public interface IClaimQueries
         GetClaimRequest request,
         CancellationToken ct = default
     );
-    Task<HashSet<string>> GetExistingClaimCodesAsync(CancellationToken ct);
+    Task<Outcome<HashSet<string>>> GetExistingClaimCodesAsync(CancellationToken ct);
     Task<Outcome<ClaimResponse[]>> ListClaimsAsync(
         CancellationToken ct = default
     );

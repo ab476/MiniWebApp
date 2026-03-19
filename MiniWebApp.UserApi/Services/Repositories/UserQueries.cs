@@ -8,7 +8,8 @@ public sealed record UserResponse(
     string Email,
     string UserName,
     UserStatus Status,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    Guid? TenantId
 );
 
 public sealed record CreateUserRequest(
@@ -31,11 +32,11 @@ public sealed class UserQueries(UserDbContext db) : IUserQueries
             .FirstOrDefaultAsync(ct);
 
         return user is not null
-            ? (StatusCodes.Status200OK, user)
-            : ("User not found.", StatusCodes.Status404NotFound);
+            ? Outcome.Success(StatusCodes.Status200OK, user)
+            : Outcome.Failure("User not found.", StatusCodes.Status404NotFound);
     }
 
-    public async Task<Outcome<IReadOnlyList<UserResponse>>> GetByTenantAsync(Guid tenantId, CancellationToken ct = default)
+    public async Task<Outcome<List<UserResponse>>> GetByTenantAsync(Guid tenantId, CancellationToken ct = default)
     {
         var users = await db.Users
             .TagWith("UserQueries.GetByTenantAsync: Listing users for tenant")
@@ -44,14 +45,34 @@ public sealed class UserQueries(UserDbContext db) : IUserQueries
             .ProjectToResponse()
             .ToListAsync(ct);
 
-        return (StatusCodes.Status200OK, users);
+        return Outcome.Success(StatusCodes.Status200OK, users);
     }
-    public async Task<HashSet<string>> GetExistingUserEmailsAsync(CancellationToken ct = default)
+    public async Task<Outcome<HashSet<string>>> GetExistingUserEmailsAsync(CancellationToken ct = default)
     {
-        return await db.Users
+        var userMails = await db.Users
             .AsNoTracking()
             .TagWith("UserQueries.GetExistingUserEmailsAsync: Fetching existing user emails")
             .Select(u => u.Email)
             .ToHashSetAsync(StringComparer.InvariantCultureIgnoreCase, ct);
+
+        return Outcome.Success(StatusCodes.Status200OK, userMails);
     }
+
+    public async Task<Outcome<List<UserResponse>>> GetByEmailsAsync(HashSet<string> emails, CancellationToken ct = default)
+    {
+        var users = await db.Users
+            .TagWith("UserQueries.GetByEmailsAsync: Fetching users by emails")
+            .AsNoTracking()
+            .Where(u => emails.Contains(u.Email))
+            .ProjectToResponse()
+            .ToListAsync(ct);
+
+        return Outcome.Success(StatusCodes.Status200OK, users);
+    }
+}
+
+public interface IUserRoleQueries
+{
+    Task<Outcome<List<UserRoleResponse>>> GetRolesByUserAsync(Guid userId, CancellationToken ct = default);
+    Task<Outcome<bool>> IsInRoleAsync(UserRoleRequest request, CancellationToken ct = default);
 }

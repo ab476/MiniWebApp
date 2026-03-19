@@ -24,7 +24,7 @@ public class PermissionSeeder(IClaimRepository claimCommands, IClaimQueries clai
     {
         var permissionData = GetPermissionsToSeed();
 
-        var existingCodesSet = await claimQueries.GetExistingClaimCodesAsync(ct);
+        var existingCodesSet = (await claimQueries.GetExistingClaimCodesAsync(ct)).Value!;
 
         var newPermissions = permissionData
             .Where(p => !existingCodesSet.Contains(p.ClaimCode))

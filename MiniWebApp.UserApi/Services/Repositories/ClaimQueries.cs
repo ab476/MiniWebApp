@@ -20,13 +20,13 @@ public sealed class ClaimQueries(
 
 
         var result = await query
-            .TagWith("ClaimQueries.GetClaimAsync: Fetching claim by ID or Code")
+            .TagWith("ClaimQueries.GetClaimAsync: Fetching claim by Code")
             .ProjectToResponse()
             .FirstOrDefaultAsync(ct);
 
         return result is null
-            ? ("Claim not found.", StatusCodes.Status404NotFound)
-            : (StatusCodes.Status200OK, result);
+            ? Outcome.Failure("Claim not found.", StatusCodes.Status404NotFound)
+            : Outcome.Success(StatusCodes.Status200OK, result);
     }
 
     public async Task<Outcome<ClaimResponse[]>> ListClaimsAsync(CancellationToken ct)
@@ -39,15 +39,16 @@ public sealed class ClaimQueries(
             .ProjectToResponse()
             .ToArrayAsync(ct);
 
-        return (StatusCodes.Status200OK, items);
+        return Outcome.Success(StatusCodes.Status200OK, items);
     }
-    public async Task<HashSet<string>> GetExistingClaimCodesAsync(CancellationToken ct)
+    public async Task<Outcome<HashSet<string>>> GetExistingClaimCodesAsync(CancellationToken ct)
     {
         var existingCodes = await db.Claims
             .AsNoTracking()
             .TagWith("ClaimQueries.GetExistingClaimCodesAsync: Fetching all existing claim codes for seeding process")
             .Select(c => c.ClaimCode)
             .ToHashSetAsync(StringComparer.OrdinalIgnoreCase, ct);
-        return existingCodes;
+
+        return Outcome.Success(existingCodes);
     }
 }

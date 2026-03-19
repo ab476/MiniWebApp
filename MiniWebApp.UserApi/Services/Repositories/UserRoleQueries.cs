@@ -23,9 +23,9 @@ public sealed record BulkUserRoleRequest
 }
 
 
-public sealed class UserRoleQueries(UserDbContext db)
+public sealed class UserRoleQueries(UserDbContext db) : IUserRoleQueries
 {
-    public async Task<Outcome<IReadOnlyList<UserRoleResponse>>> GetRolesByUserAsync(
+    public async Task<Outcome<List<UserRoleResponse>>> GetRolesByUserAsync(
         Guid userId,
         CancellationToken ct = default)
     {
@@ -33,7 +33,7 @@ public sealed class UserRoleQueries(UserDbContext db)
             .TagWith("UserRoleQueries.GetRolesByUserAsync: Fetching roles for user")
             .AsNoTracking()
             .Where(ur => ur.UserId == userId)
-            .Include(ur => ur.Role) 
+            .Include(ur => ur.Role)
             .Select(ur => new UserRoleResponse
             {
                 UserId = ur.UserId,
@@ -42,7 +42,7 @@ public sealed class UserRoleQueries(UserDbContext db)
             })
             .ToListAsync(ct);
 
-        return (StatusCodes.Status200OK, roles);
+        return Outcome.Success(StatusCodes.Status200OK, roles);
     }
 
     public async Task<Outcome<bool>> IsInRoleAsync(
@@ -54,6 +54,6 @@ public sealed class UserRoleQueries(UserDbContext db)
             .AsNoTracking()
             .AnyAsync(ur => ur.UserId == request.UserId && ur.RoleCode == request.RoleCode, ct);
 
-        return (StatusCodes.Status200OK, exists);
+        return Outcome.Success(StatusCodes.Status200OK, exists);
     }
 }

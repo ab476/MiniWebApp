@@ -20,7 +20,7 @@ public class RoleSeeder(
     IRoleRepository roleRepository,
     IRoleQueries roleQueries,
     IClaimQueries claimQueries,
-    IRoleClaimRepository roleClaimRepository,
+    IRoleClaimRepository roleClaimRepository, // This will be used directly
     IUserContext userContext,
     IOptions<SeedDataOptions> options,
     ISystemIdentitySetupService identitySetup,
@@ -45,14 +45,14 @@ public class RoleSeeder(
         var tenantId = userContext.TenantId;
 
         var existingRoleCodes = await roleQueries.GetExistingRoleCodesAsync(tenantId, ct);
-        var validClaimCodes = await claimQueries.GetExistingClaimCodesAsync(ct);
+        var validClaimCodes = (await claimQueries.GetExistingClaimCodesAsync(ct)).Value!;
 
         var newRoles = new List<CreateRoleRequest>();
         var roleClaimsToSync = new List<BulkRoleClaimRequest>();
 
         foreach (var roleSeed in _seedData.Roles)
         {
-            if (!existingRoleCodes.Contains(roleSeed.RoleCode))
+            if (!existingRoleCodes.Value!.Contains(roleSeed.RoleCode))
             {
                 newRoles.Add(new CreateRoleRequest(roleSeed.RoleCode, roleSeed.Name, tenantId));
             }
@@ -78,10 +78,11 @@ public class RoleSeeder(
 
         if (roleClaimsToSync.Count > 0)
         {
-            var claimTasks = roleClaimsToSync.Select(roleClaim =>
-                roleClaimRepository.AssignBulkAsync(roleClaim, ct));
-
-            await Task.WhenAll(claimTasks);
+            foreach (var roleClaim in roleClaimsToSync)
+            {
+                logger.LogDebug("Assigning claims for role {RoleCode} in tenant {TenantId}", roleClaim.RoleCode, roleClaim.TenantId);
+                await roleClaimRepository.AssignBulkAsync(roleClaim, ct);
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 using FluentValidation;
 using MiniWebApp.Core.Validator;
+using MiniWebApp.UserApi.Infrastructure;
 
 namespace MiniWebApp.UserApi.Models;
 
@@ -27,6 +28,7 @@ public record CreateTenantRequest(
 /// Represents the data required to update an existing tenant's details.
 /// </summary>
 public record UpdateTenantRequest(
+    [FromRoute] Guid TenantId,
     string Name,
     string? Domain
 );
@@ -45,6 +47,12 @@ public record DeactivateTenantRequest(
     Guid TenantId
 );
 
+public record AuditTenantRequest(
+    Guid TenantId,
+    string? Name = null,
+    string? Domain = null,
+    bool? IsActive = null
+);
 /// <summary>
 /// Validator for <see cref="UpdateTenantRequest"/>.
 /// </summary>
@@ -95,8 +103,7 @@ internal static class TenantValidationExtensions
             .MaximumLength(200).WithMessage("Domain must not exceed 200 characters.") // Keep this for length validation
             .Must(SecurityInputValidator.IsAlphanumericDotHyphen)
             .When(x => x is not null)
-            .WithMessage("Domain contains invalid characters.")
-            .IsSecurePlainText();
+            .WithMessage("Domain contains invalid characters.");
     }
 
     public static IRuleBuilderOptions<T, Guid> ValidTenantId<T>(

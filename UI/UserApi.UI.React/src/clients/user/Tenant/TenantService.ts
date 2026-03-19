@@ -1,5 +1,5 @@
-import type { Outcome } from "../types";
-import apiClient from "../userApiClient";
+import type { Outcome } from "../../types";
+import apiClient from "../../apiClient";
 import type {
     TenantResponse,
     CreateTenantRequest,
@@ -90,45 +90,3 @@ class TenantService {
 }
 
 export default new TenantService();
-
-// auth.service.ts
-class AuthService {
-  async refresh(tokens: { accessToken: string; refreshToken: string }): Promise<Outcome<AuthResponse>> {
-    const response = await apiClient.post<Outcome<AuthResponse>>('/auth/refresh', tokens);
-    if (response.data.isSuccess && response.data.value) {
-      this.setSession(response.data.value);
-    }
-    return response.data;
-  }
-
-  setSession(auth: AuthResponse) {
-    localStorage.setItem('accessToken', auth.accessToken);
-    localStorage.setItem('refreshToken', auth.refreshToken);
-  }
-
-  async logout(): Promise<void> {
-    await apiClient.post('/auth/logout');
-    localStorage.clear();
-    window.location.href = '/login';
-  }
-}
-
-// apiClient.ts (Interceptor Logic)
-apiClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      const refreshToken = localStorage.getItem('refreshToken');
-      const accessToken = localStorage.getItem('accessToken');
-
-      const outcome = await authService.refresh({ accessToken, refreshToken });
-      if (outcome.isSuccess) {
-        originalRequest.headers.Authorization = `Bearer ${outcome.value.accessToken}`;
-        return apiClient(originalRequest);
-      }
-    }
-    return Promise.reject(error);
-  }
-);

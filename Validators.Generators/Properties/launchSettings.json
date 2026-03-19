@@ -1,0 +1,8 @@
+﻿{
+    "profiles": {
+        "Debug Generator": {
+            "commandName": "RoslynComponent",
+            "targetProject": "..\\MiniWebApp.UserApi\\MiniWebApp.UserApi.csproj"
+        }
+    }
+}

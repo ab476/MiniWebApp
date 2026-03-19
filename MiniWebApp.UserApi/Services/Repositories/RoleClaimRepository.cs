@@ -19,7 +19,7 @@ public sealed class RoleClaimRepository(UserDbContext db, IRequestContext reques
                             rc.RoleCode == request.RoleCode &&
                             rc.ClaimCode == request.ClaimCode, ct);
 
-        if (exists) return ("Claim already assigned to this role.", StatusCodes.Status409Conflict);
+        if (exists) return Outcome.Failure("Claim already assigned to this role.", StatusCodes.Status409Conflict);
 
         var assignment = new RoleClaim
         {
@@ -31,7 +31,7 @@ public sealed class RoleClaimRepository(UserDbContext db, IRequestContext reques
         await db.RoleClaims.AddAsync(assignment, ct);
         await db.SaveChangesAsync(ct);
 
-        return StatusCodes.Status201Created;
+        return Outcome.Success(StatusCodes.Status201Created);
     }
 
     public async Task<Outcome> AssignBulkAsync(
@@ -40,13 +40,13 @@ public sealed class RoleClaimRepository(UserDbContext db, IRequestContext reques
     {
         if (request.TenantId != ContextTenantId && !IsSuperAdmin)
         {
-            return ("Access Denied: You do not have permission to manage role claims for another tenant.",
+            return Outcome.Failure("Access Denied: You do not have permission to manage role claims for another tenant.",
                     StatusCodes.Status403Forbidden);
         }
 
         if (request.TenantId == Guid.Empty)
         {
-            return ("TenantId must be provided for bulk role claim assignments.", StatusCodes.Status400BadRequest);
+            return Outcome.Failure("TenantId must be provided for bulk role claim assignments.", StatusCodes.Status400BadRequest);
         }
 
 
@@ -71,13 +71,13 @@ public sealed class RoleClaimRepository(UserDbContext db, IRequestContext reques
 
         if (newAssignments.Count == 0)
         {
-            return ("No new claims to assign.", StatusCodes.Status200OK);
+            return Outcome.Success(StatusCodes.Status200OK);
         }
 
         await db.RoleClaims.AddRangeAsync(newAssignments, ct);
         await db.SaveChangesAsync(ct);
 
-        return StatusCodes.Status201Created;
+        return Outcome.Success(StatusCodes.Status201Created);
     }
 
     public async Task<Outcome> RevokeAsync(
@@ -91,8 +91,8 @@ public sealed class RoleClaimRepository(UserDbContext db, IRequestContext reques
             .ExecuteDeleteAsync(ct);
 
         return rows > 0
-            ? StatusCodes.Status200OK
-            : ("Assignment not found.", StatusCodes.Status404NotFound);
+            ? Outcome.Success(StatusCodes.Status200OK)
+            : Outcome.Failure("Assignment not found.", StatusCodes.Status404NotFound);
     }
 
     public async Task<Outcome> RevokeAllForRoleAsync(string roleCode, CancellationToken ct = default)
@@ -101,6 +101,6 @@ public sealed class RoleClaimRepository(UserDbContext db, IRequestContext reques
             .Where(rc => rc.TenantId == ContextTenantId && rc.RoleCode == roleCode)
             .ExecuteDeleteAsync(ct);
 
-        return StatusCodes.Status200OK;
+        return Outcome.Success(StatusCodes.Status200OK);
     }
 }

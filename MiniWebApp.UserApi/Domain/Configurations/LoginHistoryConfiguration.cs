@@ -15,12 +15,10 @@ public class LoginHistoryConfiguration : IEntityTypeConfiguration<LoginHistory>
                .HasColumnName("id");
 
         builder.Property(x => x.UserId)
-               .HasColumnName("user_id")
-               .IsRequired();
+               .HasColumnName("user_id");
 
         builder.Property(x => x.TenantId)
-               .HasColumnName("tenant_id")
-               .IsRequired();
+               .HasColumnName("tenant_id");
 
         builder.Property(x => x.LoginTime)
                .HasColumnName("login_time")

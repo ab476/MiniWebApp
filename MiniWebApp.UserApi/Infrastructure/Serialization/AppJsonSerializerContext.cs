@@ -1,5 +1,6 @@
 ﻿using MiniWebApp.Core.Models;
 using MiniWebApp.Core.Security;
+using Validators.Validation;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
@@ -31,6 +32,7 @@ namespace MiniWebApp.UserApi.Infrastructure.Serialization;
 
 // 3. Query Models (if they are bound from JSON, though PagedRequest is usually [FromQuery])
 [JsonSerializable(typeof(PagedRequest))]
+[ValidatorRegistrySource]
 public partial class UserApiJsonSerializerContext : JsonSerializerContext
 {
     /// <summary>
@@ -75,3 +77,6 @@ public static class Extensions
         return services;
     }
 }
+[ValidatorRegistry]
+[ValidatorRegistryIgnore(typeof(Outcome<>))]
+public partial class UserApiValidatorRegistery { }

@@ -17,7 +17,7 @@ public sealed class RoleClaimQueries(UserDbContext db, IRequestContext requestCo
             .ProjectToResponse()
             .ToArrayAsync(ct);
 
-        return (StatusCodes.Status200OK, claims);
+        return Outcome.Success(StatusCodes.Status200OK, claims);
     }
 
     public async Task<Outcome<ClaimResponse[]>> GetClaimsByRolesAsync(
@@ -26,7 +26,7 @@ public sealed class RoleClaimQueries(UserDbContext db, IRequestContext requestCo
     {
         if (roleCodes is null || roleCodes.Length == 0)
         {
-            return (StatusCodes.Status200OK, Array.Empty<ClaimResponse>());
+            return Outcome.Success(StatusCodes.Status200OK, Array.Empty<ClaimResponse>());
         }
 
         var claims = await db.RoleClaims
@@ -38,7 +38,7 @@ public sealed class RoleClaimQueries(UserDbContext db, IRequestContext requestCo
             .ProjectToResponse()
             .ToArrayAsync(ct);
 
-        return (StatusCodes.Status200OK, claims);
+        return Outcome.Success(StatusCodes.Status200OK, claims);
     }
 
     public async Task<Outcome<bool>> HasClaimAsync(
@@ -54,6 +54,6 @@ public sealed class RoleClaimQueries(UserDbContext db, IRequestContext requestCo
                 rc.RoleCode == request.RoleCode &&
                 rc.ClaimCode == request.ClaimCode, ct);
 
-        return (StatusCodes.Status200OK, hasAccess);
+        return Outcome.Success(StatusCodes.Status200OK, hasAccess);
     }
 }

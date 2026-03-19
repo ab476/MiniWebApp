@@ -12,6 +12,7 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbC
     public DbSet<LoginHistory> LoginHistories => Set<LoginHistory>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+    public DbSet<TenantHistory> TenantHistories => Set<TenantHistory>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

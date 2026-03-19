@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using MiniWebApp.Core.Security;
 using MiniWebApp.UserApi.Domain;
+using MiniWebApp.UserApi.Services.Repositories;
 using MiniWebApp.UserApi.Options;
 
 namespace MiniWebApp.UserApi.Infrastructure.HostedService;
@@ -9,99 +10,111 @@ namespace MiniWebApp.UserApi.Infrastructure.HostedService;
 /// <summary>
 /// Seeds the database with initial user accounts and assigns their default roles.
 /// </summary>
-/// <remarks>
-/// <strong>Key Responsibilities:</strong>
-/// <list type="bullet">
-///     <item><description>Resolves the default system tenant to associate with system-level users.</description></item>
-///     <item><description>Cross-references existing emails to prevent duplicate account creation.</description></item>
-///     <item><description>Securely hashes passwords using the configured <see cref="IPasswordHasher{TUser}"/>.</description></item>
-///     <item><description>Validates and maps assigned roles to ensure foreign key integrity.</description></item>
-/// </list>
-/// </remarks>
-/// <param name="dbContext">The database context used for data access.</param>
-/// <param name="passwordHasher">The service used to securely hash user passwords before storage.</param>
-/// <param name="userContext">The context providing the current user information.</param>
-/// <param name="options">The application settings containing the seed data configuration.</param>
 public class UserSeeder(
-    UserDbContext _dbContext,
-    IPasswordHasher<User> passwordHasher,
+    IUserRepository userRepository,
+    IUserQueries userQueries,
+    IUserRoleRepository userRoleRepository,
     IUserContext userContext,
-    IOptions<SeedDataOptions> options) : IDataSeeder
+    IOptions<SeedDataOptions> options,
+    ILogger<UserSeeder> logger) : IDataSeeder
 {
     private readonly SeedDataOptions _seedData = options.Value;
 
-    /// <summary>
-    /// Executes the asynchronous user seeding process.
-    /// </summary>
-    /// <param name="ct">A cancellation token to observe while waiting for the task to complete.</param>
-    /// <returns>A task that represents the asynchronous seeding operation.</returns>
-    /// <remarks>
-    /// <strong>Execution Flow:</strong>
-    /// <list type="number">
-    ///     <item><description>Checks if user seed data exists in the configuration.</description></item>
-    ///     <item><description>Resolves the default tenant context.</description></item>
-    ///     <item><description>Retrieves existing roles and user emails into case-insensitive hash sets for fast validation.</description></item>
-    ///     <item><description>Iterates over the seed configuration to build <see cref="User"/> and <see cref="UserRole"/> collections.</description></item>
-    ///     <item><description>Executes a batch insert to persist the new users and their role mappings to the database.</description></item>
-    /// </list>
-    /// </remarks>
     public async Task SeedAsync(CancellationToken ct)
     {
-        if (_seedData.Users.Count == 0) return;
-
-        var defaultTenantId = userContext.TenantId;
-
-        var validRoleCodes = await _dbContext.Set<Role>()
-            .Select(r => r.RoleCode)
-            .ToHashSetAsync(StringComparer.InvariantCultureIgnoreCase, ct);
-
-        var existingEmails = await _dbContext.Set<User>()
-            .Select(u => u.Email)
-            .ToHashSetAsync(StringComparer.InvariantCultureIgnoreCase, ct);
-
-        var newUsers = new List<User>();
-        var newUserRoles = new List<UserRole>();
-
-        foreach (var userSeed in _seedData.Users)
+        if (_seedData.Users.Count == 0)
         {
-            if (existingEmails.Contains(userSeed.Email)) continue;
+            logger.LogInformation("No users found in seed data. Skipping user seeding.");
+            return;
+        }
 
-            var newUser = new User
+        logger.LogInformation("Starting user seeding process.");
+
+        try
+        {
+            var defaultTenantId = userContext.TenantId;
+
+            var validRoleCodes = _seedData.Roles
+                .Select(r => r.RoleCode)
+                .ToHashSet(StringComparer.InvariantCultureIgnoreCase);
+
+            var existingEmails = await userQueries.GetExistingUserEmailsAsync(ct);
+
+            var usersToCreate = new List<CreateUserRequest>();
+            var userRolesToAssign = new List<(string Email, string[] RoleCodes)>();
+
+            foreach (var userSeed in _seedData.Users)
             {
-                Id = Guid.NewGuid(),
-                Email = userSeed.Email,
-                NormalizedEmail = userSeed.Email.ToUpperInvariant(),
-                UserName = userSeed.Email,
-                NormalizedUsername = userSeed.Email.ToUpperInvariant(),
-                TenantId = defaultTenantId,
-                EmailConfirmed = true,
-                Status = UserStatus.Active,
-                CreatedAt = DateTime.UtcNow,
-                PasswordHash = string.Empty // Placeholder, will be set after hashing
-            };
-            newUser.PasswordHash = passwordHasher.HashPassword(newUser, userSeed.Password);
-            newUsers.Add(newUser);
-
-            var userRoles = userSeed.Roles
-                .Where(validRoleCodes.Contains)
-                .Select(roleCode => new UserRole
+                if (existingEmails.Value!.Contains(userSeed.Email))
                 {
-                    UserId = newUser.Id,
-                    RoleCode = roleCode
-                });
+                    logger.LogWarning("Skipping user with email {Email} as it already exists.", userSeed.Email);
+                    continue;
+                }
 
-            newUserRoles.AddRange(userRoles);
+                usersToCreate.Add(new CreateUserRequest(userSeed.Email, userSeed.Email, userSeed.Password, defaultTenantId));
+
+                var rolesForUser = userSeed.Roles
+                    .Where(validRoleCodes.Contains)
+                    .ToArray();
+
+                if (rolesForUser.Length > 0)
+                {
+                    userRolesToAssign.Add((userSeed.Email, rolesForUser));
+                }
+            }
+
+            if (usersToCreate.Count == 0)
+            {
+                logger.LogInformation("No new users to seed.");
+                return;
+            }
+
+            // 1. Create Users
+            var createUsersResult = await userRepository.CreateBulkAsync(usersToCreate, ct);
+            if (!createUsersResult.IsSuccess)
+            {
+                logger.LogError("Failed to create users during seeding: {Error}", createUsersResult.Error);
+                return;
+            }
+
+            // 2. Fetch the newly created users to get their IDs
+            var newlyCreatedUserEmails = usersToCreate.Select(u => u.Email).ToHashSet(StringComparer.InvariantCultureIgnoreCase);
+            var newlyCreatedUsersOutcome = await userQueries.GetByEmailsAsync(newlyCreatedUserEmails, ct);
+
+            if (!newlyCreatedUsersOutcome.IsSuccess)
+            {
+                logger.LogError("Failed to retrieve newly created users during seeding: {Error}", newlyCreatedUsersOutcome.Error);
+                return;
+            }
+
+            // 3. Map Roles to the new User IDs
+            var emailToIdMap = newlyCreatedUsersOutcome.Value.ToDictionary(u => u.Email, u => u.Id, StringComparer.InvariantCultureIgnoreCase);
+            var userRoles = new List<UserRole>();
+
+            foreach (var (email, roles) in userRolesToAssign)
+            {
+                if (emailToIdMap.TryGetValue(email, out var userId))
+                {
+                    userRoles.AddRange(roles.Select(role => new UserRole { UserId = userId, RoleCode = role, TenantId = defaultTenantId }));
+                }
+            }
+
+            // 4. Assign Roles
+            if (userRoles.Count > 0)
+            {
+                var outcome = await userRoleRepository.CreateBulkAsync(userRoles, ct);
+                if (!outcome.IsSuccess)
+                {
+                    logger.LogError("Failed to assign roles during seeding: {Error}", outcome.Error);
+                    return;
+                }
+            }
+
+            logger.LogInformation("Successfully seeded {Count} users.", usersToCreate.Count);
         }
-
-        if (newUsers.Count == 0) return;
-
-        await _dbContext.Set<User>().AddRangeAsync(newUsers, ct);
-
-        if (newUserRoles.Count > 0)
+        catch (Exception ex)
         {
-            await _dbContext.Set<UserRole>().AddRangeAsync(newUserRoles, ct);
+            logger.LogError(ex, "An error occurred during user seeding.");
         }
-
-        await _dbContext.SaveChangesAsync(ct);
     }
 }

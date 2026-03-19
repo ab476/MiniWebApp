@@ -1,9 +1,3 @@
-using MiniWebApp.Core.Exceptions;
-using MiniWebApp.UserApi.Domain;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace MiniWebApp.UserApi.Services.Repositories;
 
 public interface IUserRoleRepository

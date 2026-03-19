@@ -5,11 +5,12 @@ public partial class UpdateTenantRequestBuilder : IBuilder<UpdateTenantRequest, 
 {
     private string Name { get; set; }
     private string? Domain { get; set; }
-
+    private Guid TenatId { get; set; }
     public UpdateTenantRequestBuilder()
     {
         Name = string.Empty;
         Domain = null;
+        TenatId = Guid.Empty;
     }
     /// <summary>
     /// Returns a valid update request with randomized data.
@@ -63,7 +64,11 @@ public partial class UpdateTenantRequestBuilder : IBuilder<UpdateTenantRequest, 
     {
         return WithName(string.Empty);
     }
-
+    public UpdateTenantRequestBuilder WithTenatId(Guid tenatId)
+    {
+        TenatId = tenatId;
+        return this;
+    }
     public UpdateTenantRequestBuilder WithName(string name)
     {
         Name = name;
@@ -77,7 +82,7 @@ public partial class UpdateTenantRequestBuilder : IBuilder<UpdateTenantRequest, 
     }
     public UpdateTenantRequest Build()
     {
-        return new UpdateTenantRequest(Name, Domain);
+        return new UpdateTenantRequest(TenatId, Name, Domain);
     }
 
     public static implicit operator UpdateTenantRequest(UpdateTenantRequestBuilder builder)

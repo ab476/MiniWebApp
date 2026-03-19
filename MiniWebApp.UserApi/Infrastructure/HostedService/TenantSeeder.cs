@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Options;
-using MiniWebApp.Core.Security;
 using MiniWebApp.UserApi.Options;
 using MiniWebApp.UserApi.Services.Repositories;
 
@@ -40,7 +39,7 @@ public class TenantSeeder(
         var existingNames = await tenantQueries.GetExistingTenantNamesAsync(ct);
 
         var newTenants = _seedData.Tenants
-            .Where(t => !existingNames.Contains(t.Name))
+            .Where(t => !existingNames.Value!.Contains(t.Name))
             .Select(MapToEntity)
             .ToList();
 
@@ -56,17 +55,5 @@ public class TenantSeeder(
         }
     }
 
-    /// <summary>
-    /// Maps a configuration-based tenant seed model into a database entity.
-    /// </summary>
-    /// <param name="seed">The source configuration model to map.</param>
-    /// <returns>A new <see cref="Tenant"/> entity ready for persistence.</returns>
-    private static Tenant MapToEntity(TenantSeed seed) => new()
-    {
-        Id = Guid.NewGuid(),
-        Name = seed.Name,
-        Domain = seed.Domain,
-        CreatedAt = DateTime.UtcNow,
-        IsActive = true
-    };
+    private static CreateTenantRequest MapToEntity(TenantSeed seed) => new(Name: seed.Name, Domain: seed.Domain);
 }

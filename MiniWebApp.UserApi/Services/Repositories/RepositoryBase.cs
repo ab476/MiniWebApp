@@ -17,6 +17,9 @@ public abstract class RepositoryBase(IRequestContext context)
 
     /// <summary>Gets a value indicating whether the current authenticated user has administrative privileges across all tenants.</summary>
     protected bool IsSuperAdmin => context.IsSuperAdmin;
+
+    /// <summary>Gets the unique identifier of the currently authenticated user, or <see langword="null"/> if the request is anonymous.</summary>
+    protected Guid? UserId => context.UserId;
 }
 
 /// <summary>
@@ -27,6 +30,9 @@ public interface IRequestContext
 {
     /// <summary>Gets the current authenticated user context.</summary>
     IUserContext User { get; }
+
+    /// <summary>Gets the unique identifier of the currently authenticated user, or <see langword="null"/> if the request is anonymous.</summary>
+    Guid? UserId { get; }
 
     /// <summary>Gets the provider used to retrieve system time.</summary>
     TimeProvider TimeProvider { get; }
@@ -63,4 +69,6 @@ public class OperationalContext(IUserContext userContext, TimeProvider timeProvi
 
     /// <inheritdoc />
     public bool IsSuperAdmin => User.IsSuperAdmin;
+
+    public Guid? UserId => User.IsAuthenticated ? User.UserId : null;
 }

@@ -14,19 +14,21 @@ public sealed class RoleQueries(UserDbContext db, IRequestContext requestContext
             .FirstOrDefaultAsync(ct);
 
         return result is null
-            ? ("Role not found.", StatusCodes.Status404NotFound)
-            : (StatusCodes.Status200OK, result);
+            ? Outcome.Failure("Role not found.", StatusCodes.Status404NotFound)
+            : Outcome.Success(StatusCodes.Status200OK, result);
     }
     /// <inheritdoc />
-    public async Task<HashSet<string>> GetExistingRoleCodesAsync(Guid tenantId, CancellationToken ct = default)
+    public async Task<Outcome<HashSet<string>>> GetExistingRoleCodesAsync(Guid tenantId, CancellationToken ct = default)
     {
-        return await db.Roles
+        var roleCodes = await db.Roles
             .AsNoTracking()
             .Where(r => r.TenantId == tenantId)
             .Select(r => r.RoleCode)
             .ToHashSetAsync(StringComparer.InvariantCultureIgnoreCase, ct);
+
+        return Outcome.Success(roleCodes);
     }
-    public async Task<Outcome<IReadOnlyList<RoleResponse>>> GetPagedAsync(
+    public async Task<Outcome<List<RoleResponse>>> GetPagedAsync(
         Guid tenantId,
         int page,
         int pageSize,
@@ -45,6 +47,6 @@ public sealed class RoleQueries(UserDbContext db, IRequestContext requestContext
             .ProjectToResponse()
             .ToListAsync(ct);
 
-        return (StatusCodes.Status200OK, roles);
+        return Outcome.Success(StatusCodes.Status200OK, roles);
     }
 }

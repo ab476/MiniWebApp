@@ -3,6 +3,8 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Layout from './components/Layout';
 import PermissionsPage from './pages/Permissions';
+import Login from './pages/Login';
+import TenantManager from '@features/tenants/TenantManager'
 
 export const router = createBrowserRouter([
   {
@@ -21,6 +23,17 @@ export const router = createBrowserRouter([
         path: "permissions", // URL will be /permissions
         element: <PermissionsPage />,
       },
+      {
+        path: "login",
+        element: <Login />,
+      },
+      {
+        /* Added the Tenants route. 
+           The full URL will be yourdomain.com/tenants 
+        */
+        path: "tenants",
+        element: <TenantManager />,
+      }
     ],
   },
 ]);

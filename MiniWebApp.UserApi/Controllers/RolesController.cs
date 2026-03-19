@@ -8,8 +8,6 @@ public class RolesController(IRoleQueries roleService, IRoleRepository roleRepos
 {
     [HttpGet("{roleCode}")]
     [Authorize(Policy = AppPermissions.Roles.Read)]
-    [ProducesResponseType(typeof(RoleResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<Outcome<RoleResponse>> GetByRoleCodeAsync(string roleCode, CancellationToken ct = default)
     {
         return await roleService.GetByRoleCodeAsync(roleCode, ct);
@@ -17,8 +15,7 @@ public class RolesController(IRoleQueries roleService, IRoleRepository roleRepos
 
     [HttpGet]
     [Authorize(Policy = AppPermissions.Roles.Read)]
-    [ProducesResponseType(typeof(IReadOnlyList<RoleResponse>), StatusCodes.Status200OK)]
-    public async Task<Outcome<IReadOnlyList<RoleResponse>>> GetPagedAsync(
+    public async Task<Outcome<List<RoleResponse>>> GetPagedAsync(
         [FromQuery] Guid tenantId,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
@@ -29,8 +26,6 @@ public class RolesController(IRoleQueries roleService, IRoleRepository roleRepos
 
     [HttpPost]
     [Authorize(Policy = AppPermissions.Roles.Write)]
-    [ProducesResponseType(typeof(RoleResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<Outcome<RoleResponse>> CreateAsync(
         [FromBody] CreateRoleRequest request,
         CancellationToken ct = default)
@@ -55,8 +50,6 @@ public class RolesController(IRoleQueries roleService, IRoleRepository roleRepos
 
     [HttpPut("{roleCode}")]
     [Authorize(Policy = AppPermissions.Roles.Write)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<Outcome> UpdateAsync(
         [FromRoute]string roleCode,
         [FromBody] UpdateRoleRequest request,
@@ -69,8 +62,6 @@ public class RolesController(IRoleQueries roleService, IRoleRepository roleRepos
 
     [HttpDelete("{roleCode}")]
     [Authorize(Policy = AppPermissions.Roles.Manage)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<Outcome> DeleteAsync(
         [FromRoute] string roleCode,
         [FromBody] DeleteRoleRequest request,
